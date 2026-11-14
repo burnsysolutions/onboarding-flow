@@ -661,50 +661,50 @@ ol.timeline span { font-size: 14px; color: var(--ink-2); }
       rows: [row('Enquiry from the website or ads', 'Form or call', 'low'), row('Meeting booked with Benito', 'Calendar', 'paid'), row('Lead record created', 'CRM', 'free')],
       does: 'Every new lead starts the research before anyone picks up the phone.',
       body: 'A new enquiry from the website, the ads or a phone call creates the lead record, and the research starts straight away. When Benito books a meeting, the brief is waiting for him.' },
-    { id: 'research', type: 'agent', icon: 'agent', x: 0, y: 560, w: 400, eb: 'Automation 1', nm: 'AI research', sb: 'Everything public, found in minutes',
+    { id: 'research', type: 'agent', icon: 'agent', x: 540, y: 0, w: 400, eb: 'Automation 1', nm: 'AI research', sb: 'Everything public, found in minutes',
       rows: [row('Company details and directors', 'Companies House', 'free'), row('Rating, reviews, hours and areas', 'Google Business Profile', 'free'), row('Services, photos and website set-up', 'Their website', 'free'), row('Already advertising?', 'Google and Meta ad libraries', 'free'), row('Accreditations and local rivals', 'Registers, Google Maps', 'free')],
       does: "Builds a brief for Benito before the meeting and pre-fills the client's onboarding form.",
       body: 'As soon as a lead comes in, AI gathers everything public about the business: company details, reviews and rating, services and areas from their website, whether they already advertise, accreditations, and the local rivals ranking above them. Benito walks into the meeting knowing the business, and the same research pre-fills the onboarding form so the client only has to check it. Only business information is used, and the client always confirms it.' },
-    { id: 'proposal', type: 'agent', icon: 'eye', x: 0, y: 1120, w: 400, eb: 'Automation 2', nm: 'Tracked proposal', sb: 'Know when they are thinking about it',
+    { id: 'proposal', type: 'agent', icon: 'eye', x: 1080, y: 0, w: 400, eb: 'Automation 2', nm: 'Tracked proposal', sb: 'Know when they are thinking about it',
       rows: [row('Proposal sent as a tracked link', 'Opens and time per page', 'free'), row('Pricing reread: Benito is told', 'Instant alert', 'free'), row('Not signed in 48 hours: call prompt', 'To Benito', 'free')],
       does: 'Shows Benito who is reading the proposal, and prompts a call at the right moment.',
       body: 'The proposal goes as a tracked link, not an attachment. Benito sees when it is opened, how long was spent on the pricing and when it is reopened. A reopened proposal is the best moment to call, so he gets a prompt there and then. If it is still not signed after 48 hours, he gets a reminder showing what the client looked at.' },
-    { id: 'signed', type: 'data', icon: 'action', x: 540, y: 0, w: 400, eb: 'The trigger', nm: 'Client signs', sb: 'Proposal signed or first payment',
+    { id: 'signed', type: 'data', icon: 'action', x: 1620, y: 0, w: 400, eb: 'The trigger', nm: 'Client signs', sb: 'Proposal signed or first payment',
       rows: [row('Proposal signed online', 'E-signature', 'low'), row('First payment taken', 'Card or Direct Debit', 'low'), row('Onboarding starts', 'Automatic', 'free')],
       does: 'A signed proposal or the first payment starts everything. Nobody has to remember to kick it off.',
       body: 'Onboarding starts from one event: the proposal is signed or the first payment lands, whichever comes first. Every step after it starts on its own, so nothing waits for Benito to find the time.' },
-    { id: 'welcome', type: 'agent', icon: 'mail', x: 540, y: 560, w: 400, eb: 'Automation 3', nm: 'Pre-filled intake', sb: 'Check it, then four quick questions',
+    { id: 'welcome', type: 'agent', icon: 'mail', x: 1620, y: 640, w: 400, eb: 'Automation 4', nm: 'Pre-filled intake', sb: 'Check it, then four quick questions',
       rows: [row('Welcome text with one link', 'Within a minute', 'free'), row('Business details pre-filled by AI', 'Client ticks or corrects', 'low'), row('Job value and the jobs they want', 'Question', 'low'), row('Who gets the leads, and how', 'Question', 'low')],
       does: 'The client checks what AI found and answers only what nobody else could know.',
       body: 'Within a minute of signing, the client gets a welcome text with one link. The form is already filled in from the research: business details, areas, services, reviews link, logo and photos. The client ticks it or corrects it, then answers four questions only they can answer: average job value, the jobs they want more of, who should get each lead, and which photos to use. It works on a phone, because most tradespeople do it after work.' },
-    { id: 'access', type: 'agent', icon: 'web', x: 540, y: 1120, w: 400, eb: 'Automation 4', nm: 'Access collected', sb: 'Every account from one link',
+    { id: 'access', type: 'agent', icon: 'web', x: 2160, y: 640, w: 400, eb: 'Automation 5', nm: 'Access collected', sb: 'Every account from one link',
       rows: [row('Google Ads and Analytics', 'Access request', 'low'), row('Google Business Profile', 'Manager invite', 'low'), row('Meta ad account and page', 'Partner request', 'low'), row('Website and domain', 'Secure access', 'low')],
       does: 'Requests every account the team needs through one link, and ticks each one off as it is granted.',
       body: 'One link asks for access to Google Ads, Analytics, the Google Business Profile, the Meta ad account and page, and the website and domain. Each item ticks itself off when it is granted. Access is given through the platforms themselves, so passwords are never sent by text or email.' },
-    { id: 'workspace', type: 'agent', icon: 'data', x: 1080, y: 0, w: 400, eb: 'Automation 5', nm: 'Workspace built', sb: 'Ready before anyone asks',
+    { id: 'workspace', type: 'agent', icon: 'data', x: 2160, y: 0, w: 400, eb: 'Automation 3', nm: 'Workspace built', sb: 'Ready before anyone asks',
       rows: [row('ClickUp project from a template', 'Per service bought', 'own'), row('Tasks for ads, SEO, social, video and design', 'Assigned by role', 'free'), row('Client folder with the research and uploads', 'Shared drive', 'free')],
       does: "Builds the client's ClickUp project from a template and gives each specialist their tasks.",
       body: "As soon as the client signs, their ClickUp project is built from a template for each service they bought. Tasks go straight to the right person: ads to Harry, SEO to Chester, social to Amber, filming to Billy and design to Nadya. The research brief, intake answers and uploads land in the client's folder, so nobody asks the client the same question twice." },
-    { id: 'visit', type: 'people', icon: 'people', x: 1080, y: 560, w: 400, eb: 'The team', nm: 'Site visit and filming', sb: 'Booked by the client',
+    { id: 'visit', type: 'people', icon: 'people', x: 2700, y: 0, w: 400, eb: 'The team', nm: 'Site visit and filming', sb: 'Booked by the client',
       rows: [row('Client picks a slot', 'Booking link', 'low'), row('Real jobs filmed and photographed', 'On site', 'paid'), row('Brief for ads and content', 'From the visit', 'paid')],
       does: 'Meeting the client on site stays human. Only the booking is automatic.',
       body: 'Meeting the client and the people doing the work stays exactly as it is. The only change is that the client books the visit from a link once their form is complete, and the team arrives already knowing the answers.' },
-    { id: 'chase', type: 'agent', icon: 'eye', x: 1080, y: 1120, w: 400, eb: 'Automation 6', nm: 'Link tracking and call prompts', sb: 'Nothing stalls quietly',
+    { id: 'chase', type: 'agent', icon: 'eye', x: 2160, y: 1280, w: 400, eb: 'Automation 6', nm: 'Link tracking and call prompts', sb: 'Nothing stalls quietly',
       rows: [row('Opened, started, stopped at question 3', 'Tracked link', 'free'), row('Text nudge at the point they stopped', 'SMS or WhatsApp', 'free'), row('Missing access chased every two days', 'SMS or WhatsApp', 'free'), row('Stuck for two days: call prompt', 'To Benito', 'free')],
       does: 'Tracks every link, nudges at the exact point they stopped and prompts a call before anything goes cold.',
       body: "Every link the client gets is tracked: opened, started, and where they stopped. If they stop partway, the next text picks up exactly there: 'just one question left'. Missing access is chased by text every two days. If anything is stuck for two days, Benito gets a call prompt telling him exactly what is missing, so one short call finishes it." },
-    { id: 'tracking', type: 'people', icon: 'data', x: 1620, y: 0, w: 400, eb: 'Team and automation', nm: 'Tracking and lead alerts', sb: 'Every enquiry counted from day one',
+    { id: 'tracking', type: 'people', icon: 'data', x: 2700, y: 640, w: 400, eb: 'Team and automation', nm: 'Tracking and lead alerts', sb: 'Every enquiry counted from day one',
       rows: [row('Call tracking number', 'Per client', 'paid'), row('Website forms into the CRM', 'Automatic', 'free'), row("Instant lead alert to the client's phone", 'Text or WhatsApp', 'free'), row('Starting numbers recorded', 'From the research', 'free')],
       does: 'Sets up tracking and lead alerts, and records the starting numbers every report is measured against.',
       body: "Once access is in and the visit is done, the team sets up call tracking and connects the website forms. Every new enquiry goes into the CRM and straight to the client's phone. The starting point (enquiries, star rating, reviews and where they rank) is recorded automatically, so every client has a real before and after." },
-    { id: 'ready', type: 'people', icon: 'people', x: 1620, y: 560, w: 400, eb: 'Benito', nm: 'Ready to launch', sb: 'One message, one decision',
+    { id: 'ready', type: 'people', icon: 'people', x: 3240, y: 640, w: 400, eb: 'Benito', nm: 'Ready to launch', sb: 'One message, one decision',
       rows: [row('Checklist all ticked', 'Automatic check', 'free'), row('"Ready to launch" message', 'To Benito', 'free'), row('Launch approved', 'One tap', 'paid')],
       does: "Benito gets one 'ready to launch' message instead of chasing six people.",
       body: 'When every item is ticked, Benito gets one message: ready to launch, with anything unusual flagged. He approves it, or sends it back with a note. Nothing goes live without his yes.' },
-    { id: 'launch', type: 'action', icon: 'action', x: 1620, y: 1120, w: 400, eb: 'Result', nm: 'Campaigns go live', sb: 'With a baseline to beat',
+    { id: 'launch', type: 'action', icon: 'action', x: 3780, y: 640, w: 400, eb: 'Result', nm: 'Campaigns go live', sb: 'With a baseline to beat',
       rows: [row('Ads, SEO and social switched on', 'Per service', 'paid'), row('Monthly report: spend, enquiries, jobs', 'Automatic', 'free')], does: '',
       body: 'Campaigns go live with tracking already working. Every monthly report compares the results with the starting numbers, which turns each client into a case study with real figures.' },
-    { id: 'goal', type: 'goal', icon: 'goal', x: 1620, y: 1660, w: 400, eb: 'The goal', nm: 'More of every lead won and live', sb: 'Benito back on selling', rows: [], does: '',
+    { id: 'goal', type: 'goal', icon: 'goal', x: 3780, y: 1280, w: 400, eb: 'The goal', nm: 'More of every lead won and live', sb: 'Benito back on selling', rows: [], does: '',
       body: 'Every lead gets researched, every proposal and form is tracked, and every client gets the same complete start without Benito chasing anyone. He calls only when a call will make the difference, and spends the time saved meeting tradespeople and signing them.' }
   ];
   var DEFAULT_EDGES = [
@@ -845,8 +845,8 @@ ol.timeline span { font-size: 14px; color: var(--ink-2); }
       var a = box(e[0]), b = box(e[1]);
       if (!a || !b) return;
       var r = { i: i, e: e, a: a, b: b };
-      r.mode = sideMode(a, b);
-      var sa = { R: 'r', L: 'l', D: 'b', U: 't' }[r.mode], sb = { R: 'l', L: 'r', D: 't', U: 'b' }[r.mode];
+      r.mode = EDGE_LABELS[e[0] + '>' + e[1]] ? 'DATA' : sideMode(a, b);
+      var sa = { R: 'r', L: 'l', D: 'b', U: 't', DATA: 'b' }[r.mode], sb = { R: 'l', L: 'r', D: 't', U: 'b', DATA: 't' }[r.mode];
       push(e[0], sa, { r: r, end: 'pa', key: (sa === 'l' || sa === 'r') ? b.y + b.h / 2 : b.x + b.w / 2 });
       push(e[1], sb, { r: r, end: 'pb', key: (sb === 'l' || sb === 'r') ? a.y + a.h / 2 : a.x + a.w / 2 });
       routes.push(r);
@@ -874,6 +874,11 @@ ol.timeline span { font-size: 14px; color: var(--ink-2); }
   }
   function geom(r) {
     var p = r.pa, q = r.pb, d;
+    if (r.mode === 'DATA') {
+      var ly = Math.max(p[1] + 30, q[1] - 60), rd = 14, sg = q[0] >= p[0] ? 1 : -1;
+      return { d: 'M' + p[0] + ',' + p[1] + ' L' + p[0] + ',' + (ly - rd) + ' Q' + p[0] + ',' + ly + ' ' + (p[0] + sg * rd) + ',' + ly +
+        ' L' + (q[0] - sg * rd) + ',' + ly + ' Q' + q[0] + ',' + ly + ' ' + q[0] + ',' + (ly + rd) + ' L' + q[0] + ',' + q[1], mx: (p[0] + q[0]) / 2, my: ly };
+    }
     if (r.mode === 'R') { d = Math.max(40, (q[0] - p[0]) * 0.5); return cubic(p, [p[0] + d, p[1]], [q[0] - d, q[1]], q); }
     if (r.mode === 'L') { d = Math.max(40, (p[0] - q[0]) * 0.5); return cubic(p, [p[0] - d, p[1]], [q[0] + d, q[1]], q); }
     if (r.mode === 'D') { d = Math.max(20, (q[1] - p[1]) * 0.5); return cubic(p, [p[0], p[1] + d], [q[0], q[1] - d], q); }
@@ -914,10 +919,10 @@ ol.timeline span { font-size: 14px; color: var(--ink-2); }
       if (lbl) {
         var lg = document.createElementNS(NS, 'g'); lg.setAttribute('class', 'elbl' + (on ? ' on' : ''));
         var lr = document.createElementNS(NS, 'rect'), lt = document.createElementNS(NS, 'text');
-        lt.textContent = lbl; lt.setAttribute('text-anchor', 'middle'); lt.setAttribute('x', g.mx); lt.setAttribute('y', g.my - 12);
+        lt.textContent = lbl; lt.setAttribute('text-anchor', 'middle'); lt.setAttribute('x', g.mx); lt.setAttribute('y', g.my + 4);
         lg.appendChild(lr); lg.appendChild(lt); edgeLayer.appendChild(lg);
         var tw = 0; try { tw = lt.getComputedTextLength(); } catch (err) {} if (!tw) tw = lbl.length * 6.4;
-        lr.setAttribute('x', g.mx - tw / 2 - 8); lr.setAttribute('y', g.my - 27); lr.setAttribute('width', tw + 16); lr.setAttribute('height', 21); lr.setAttribute('rx', 10.5);
+        lr.setAttribute('x', g.mx - tw / 2 - 8); lr.setAttribute('y', g.my - 10.5); lr.setAttribute('width', tw + 16); lr.setAttribute('height', 21); lr.setAttribute('rx', 10.5);
       }
       r.e._m = [g.mx, g.my];
     });
