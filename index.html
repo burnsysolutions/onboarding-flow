@@ -1,0 +1,1765 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Client Onboarding Flow</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&display=swap">
+<style>
+html, body { margin: 0; }
+/* Dark hero band on top. Tab 1 is an n8n-style node canvas laid out like the spreadsheet sketch;
+   tabs 2 to 4 are document pages. Every colour is a brand token; one light look by design. */
+:root {
+  color-scheme: light;
+  --doc: #ffffff;
+  --surface: #f2f5f7;
+  --muted: #f1f3f5;
+  --hair: #e3e8ea;
+  --hair-d: #d3dadf;
+  --ink: #223754;
+  --ink-2: #4f5f78;
+  --ink-3: #667182;
+  --commit: #002149;
+  --commit-hover: #01305f;
+  --primary: #2b6bea;
+  --tint-action: #eef2f7;
+  --pink: #c60a4f;
+  --sky: #9dbbe4;
+  --sky-2: #8fb0ff;
+  --grid: #d7dce2;
+  --edge: #a8b1bb;
+  --danger: #b3261e;
+  --tint-danger: #fbeceb;
+  --warning: #8a5a00;
+  --success: #17804a;
+  --ink-email: #2a4b8d;    --tint-email: #eaf0fb;
+  --ink-whatsapp: #1a6b45; --tint-whatsapp: #e7f4ec;
+  --ink-phone: #4c3f80;    --tint-phone: #f1eef8;
+  --shadow-card: 0 1px 2px rgba(34, 55, 84, 0.05), 0 8px 24px rgba(10, 16, 29, 0.06);
+  --shadow-float: 0 4px 8px rgba(34, 55, 84, 0.08), 0 32px 80px rgba(34, 55, 84, 0.16);
+  --font: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+}
+[hidden] { display: none !important; }
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--surface); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; overflow: hidden; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 50; background: #09090f; }
+.app { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); grid-template-columns: minmax(0, 1fr); }
+a { color: var(--primary); }
+
+/* header: brand hero band */
+.top {
+  position: relative; z-index: 5;
+  background:
+    radial-gradient(ellipse 42% 140% at 50% 160%, rgba(0, 33, 73, 0.85) 0%, rgba(0, 33, 73, 0) 66%),
+    linear-gradient(180deg, #09090f 0%, #0b1020 46%, #0d1c38 100%);
+  color: #f2f4f8;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px));
+  display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr);
+}
+.top-row { display: flex; align-items: center; gap: 10px 18px; flex-wrap: wrap; min-width: 0; }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.brand img { height: 26px; width: auto; display: block; }
+.brand .wm { font-size: 15px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #ffffff; white-space: nowrap; }
+.brand i { width: 1px; height: 22px; background: rgba(255, 255, 255, 0.14); display: block; }
+.brand .for { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--sky); white-space: nowrap; }
+.title { margin: 0; font-size: clamp(19px, 2.1vw, 25px); font-weight: 200; letter-spacing: -.02em; line-height: 1.15; color: #f2f4f8; }
+.title strong { font-weight: 500; }
+.right { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.tab, .hbtn { font: inherit; font-size: 13px; font-weight: 500; color: rgba(255, 255, 255, 0.72); background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 999px; padding: 7px 13px; cursor: pointer; }
+.tab:hover, .hbtn:hover { color: #f2f4f8; border-color: rgba(255, 255, 255, 0.26); }
+.tab[aria-selected="true"] { color: #0b1020; background: #f2f4f8; border-color: #f2f4f8; }
+.hbtn[aria-pressed="true"] { color: #ffffff; background: var(--pink); border-color: var(--pink); }
+.hstatus { font-size: 12px; color: rgba(255, 255, 255, 0.55); display: none; }
+.editing .hstatus, .unsaved .hstatus { display: inline; }
+.lede { margin: 0; font-size: 13px; color: rgba(255, 255, 255, 0.68); max-width: 1400px; }
+.tab:focus-visible, .hbtn:focus-visible, .tool:focus-visible, .node:focus-visible, .x-btn:focus-visible, .close:focus-visible, .st-dots button:focus-visible { outline: 2px solid var(--sky-2); outline-offset: 2px; }
+
+/* canvas */
+.stage { position: relative; overflow: hidden; min-height: 0; }
+.canvas { position: absolute; inset: 0; overflow: hidden; touch-action: none; cursor: grab; outline: none;
+  background-color: var(--surface);
+  background-image: radial-gradient(var(--grid) 1.1px, transparent 1.2px);
+  background-size: 22px 22px; }
+.canvas.panning { cursor: grabbing; }
+.world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.world.anim { transition: transform .55s cubic-bezier(.2, .7, .2, 1); }
+.edges { position: absolute; left: -4000px; top: -4000px; overflow: visible; pointer-events: none; }
+.edges path.e { fill: none; stroke: var(--edge); stroke-width: 2.2; transition: opacity .2s ease; }
+.edges path.hit { fill: none; stroke: transparent; stroke-width: 16; pointer-events: none; cursor: pointer; }
+.editing .edges path.hit { pointer-events: stroke; }
+.edges path.e.on { stroke: var(--primary); stroke-width: 2.8; stroke-dasharray: 8 6; animation: flow .9s linear infinite; }
+.edges path.e.sel { stroke: var(--pink); stroke-width: 3.2; stroke-dasharray: none; animation: none; }
+.edges path.temp { fill: none; stroke: var(--primary); stroke-width: 2; stroke-dasharray: 5 4; }
+.edges.focus path.e:not(.on):not(.sel) { opacity: .15; }
+@keyframes flow { to { stroke-dashoffset: -14; } }
+
+/* nodes */
+.node { position: absolute; width: 300px; background: var(--doc); border: 1px solid var(--hair); border-radius: 14px; box-shadow: var(--shadow-card); padding: 12px 14px 12px 12px; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; transition: opacity .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.node:hover { border-color: var(--hair-d); }
+.node.sel { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(43, 107, 234, 0.18), var(--shadow-card); }
+.node.dim { opacity: .28; }
+.node.lit { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(43, 107, 234, 0.16), var(--shadow-float); }
+.node .nh { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 10px; align-items: center; }
+.node .ic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; }
+.node .ic svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.node .tx { min-width: 0; display: grid; gap: 1px; }
+.node .eb { font-size: 10.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; line-height: 1.3; }
+.node .nm { font-size: 15px; font-weight: 600; line-height: 1.25; color: var(--ink); overflow-wrap: anywhere; }
+.node .sb { font-size: 12px; line-height: 1.35; color: var(--ink-2); }
+.node .rows { margin-top: 10px; border-top: 1px solid var(--hair); }
+.lrow { display: flex; align-items: center; gap: 8px; min-height: 26px; padding: 3px 0; border-bottom: 1px solid var(--hair); font-size: 12.5px; color: var(--ink); }
+.lrow .ln { flex: 1 1 auto; min-width: 0; line-height: 1.3; }
+.lrow .lc { flex: 0 1 auto; color: var(--ink-3); font-size: 11px; text-align: right; line-height: 1.25; max-width: 42%; }
+.node .does { margin-top: 9px; font-size: 12px; color: var(--ink-2); line-height: 1.4; }
+.node .does b { color: var(--ink); font-weight: 600; }
+.far .node .sb, .far .node .does, .far .lrow .lc { display: none; }
+.far .node .nm { font-size: 22px; line-height: 1.2; }
+.far .node .eb { font-size: 13px; }
+.far .lrow { font-size: 16.5px; min-height: 34px; }
+.badge { flex: none; font-size: 9.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; line-height: 1; padding: 4px 7px; border-radius: 999px; white-space: nowrap; }
+.far .badge { font-size: 12px; padding: 5px 8px; }
+.badge.free, .chip.free { background: var(--tint-whatsapp); color: var(--ink-whatsapp); }
+.badge.low, .chip.low { background: var(--tint-phone); color: var(--ink-phone); }
+.badge.paid, .chip.paid { background: var(--muted); color: var(--warning); }
+.badge.own, .chip.own { background: var(--tint-email); color: var(--ink-email); }
+.ty-agent .ic { color: #ffffff; background: var(--commit); }
+.ty-agent .eb { color: var(--commit); }
+.ty-data .ic { color: var(--ink-email); background: var(--tint-email); }
+.ty-data .eb { color: var(--ink-email); }
+.ty-people .ic { color: var(--ink-phone); background: var(--tint-phone); }
+.ty-people .eb { color: var(--ink-phone); }
+.ty-action .ic { color: var(--ink-whatsapp); background: var(--tint-whatsapp); }
+.ty-action .eb { color: var(--ink-whatsapp); }
+.ty-goal { border: 2px solid var(--pink); }
+.ty-goal .ic { color: #ffffff; background: var(--pink); }
+.ty-goal .eb { color: var(--pink); }
+.ty-goal .nm { font-size: 18px; }
+.far .ty-goal .nm { font-size: 26px; }
+.port { position: absolute; top: 50%; right: -7px; width: 13px; height: 13px; margin-top: -6.5px; border-radius: 50%; background: var(--doc); border: 2px solid var(--edge); cursor: crosshair; opacity: 0; transition: opacity .12s ease; }
+.port { display: none; }
+.editing .port { display: block; }
+.node:hover .port, .node.sel .port, .port.live { opacity: 1; }
+.port:hover, .port.live { background: var(--primary); border-color: var(--primary); }
+@media (hover: none) { .port { opacity: 1; } }
+.x-btn { position: absolute; transform: translate(-50%, -50%); font: inherit; font-size: 12px; font-weight: 600; color: #ffffff; background: var(--pink); border: 0; border-radius: 999px; padding: 6px 11px; cursor: pointer; box-shadow: var(--shadow-card); white-space: nowrap; }
+
+/* chrome over the canvas */
+.hint { position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); top: 12px; z-index: 6; pointer-events: none; font-size: 12px; color: var(--ink-2); background: rgba(255, 255, 255, 0.94); border: 1px solid var(--hair); border-radius: 999px; padding: 6px 12px; max-width: calc(100% - 24px); }
+.editing .hint { border-color: var(--pink); color: var(--ink); }
+.dock { position: absolute; z-index: 7; left: max(12px, env(safe-area-inset-left, 0px)); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; max-width: calc(100% - 24px); }
+.tool { font: inherit; font-size: 12.5px; font-weight: 500; color: var(--ink); background: var(--doc); border: 1px solid var(--hair); border-radius: 8px; padding: 7px 11px; cursor: pointer; box-shadow: var(--shadow-card); min-width: 34px; }
+.tool:hover { border-color: var(--hair-d); }
+.tool[aria-pressed="true"], .tool.primary { background: var(--commit); color: #ffffff; border-color: var(--commit); }
+.tool.primary:hover { background: var(--commit-hover); }
+.tool.warn { color: var(--danger); }
+.tool:disabled { opacity: .45; cursor: default; }
+.legend { position: absolute; z-index: 6; right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px 12px; max-width: calc(100% - 470px); background: rgba(255, 255, 255, 0.94); border: 1px solid var(--hair); border-radius: 10px; padding: 7px 12px; font-size: 11.5px; color: var(--ink-2); }
+.legend .sep { width: 1px; height: 14px; background: var(--hair-d); }
+.legend .badge { font-size: 9.5px; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.legend b { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.present .edit-only, .present #edit-toggle, .present #pdf, .present .hint, .present .lede, .present .hstatus, .touring .hint, .panel-open .legend { display: none !important; }
+.view-only { }
+.editing .view-only { display: none !important; }
+.edit-only { display: none !important; }
+.editing .edit-only { display: inline-flex !important; }
+.present.editing .edit-only { display: none !important; }
+
+/* side panel: details, editor and walkthrough */
+.panel { position: absolute; top: 0; right: 0; bottom: 0; width: min(420px, 100%); z-index: 8; background: var(--doc); border-left: 1px solid var(--hair); box-shadow: var(--shadow-float);
+  padding: 16px max(18px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) 18px; overflow-y: auto; display: grid; align-content: start; gap: 12px; }
+.panel .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.panel .p-kind { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--pink); margin: 0; }
+.panel h2 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.01em; line-height: 1.25; color: var(--ink); }
+.panel h4 { margin: 4px 0 0; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.panel p { margin: 0; color: var(--ink-2); font-size: 14px; }
+.panel ul { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; display: grid; gap: 4px; }
+.close { font: inherit; font-size: 13px; font-weight: 500; color: var(--ink-2); background: var(--surface); border: 1px solid var(--hair); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.links { display: grid; gap: 6px; font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--hair); padding-top: 12px; }
+.links b { color: var(--ink); font-weight: 600; }
+.srcs { display: grid; gap: 0; border-top: 1px solid var(--hair); }
+.srcs .lrow { font-size: 13px; }
+.ev { display: grid; gap: 8px; }
+.ev .it { border: 1px solid var(--hair); border-radius: 10px; padding: 10px 12px; display: grid; gap: 3px; background: var(--doc); }
+.ev .src { display: flex; justify-content: space-between; gap: 10px; font-size: 11.5px; font-weight: 600; color: var(--ink); }
+.ev .src span { color: var(--ink-3); font-weight: 500; white-space: nowrap; }
+.ev .f { font-size: 13.5px; color: var(--ink-2); }
+.ev a { font-size: 12.5px; font-weight: 500; }
+.how { background: var(--tint-action); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; color: var(--ink); }
+.st-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.st-step { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--pink); }
+.st-nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid var(--hair); padding-top: 12px; position: sticky; bottom: -18px; background: var(--doc); padding-bottom: 6px; }
+.st-dots { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+.st-dots button { width: 9px; height: 9px; border-radius: 999px; border: 0; padding: 0; background: var(--hair-d); cursor: pointer; }
+.st-dots button.on { background: var(--commit); width: 20px; }
+.st-btns { display: flex; gap: 6px; }
+
+/* editor fields */
+.fld { display: grid; gap: 4px; }
+.fld label, .fldlabel { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.fld input, .fld textarea, .fld select, .rowed input, .rowed select, .eved input, .eved textarea { font: inherit; font-size: 13.5px; color: var(--ink); background: var(--doc); border: 1px solid var(--hair-d); border-radius: 8px; padding: 7px 9px; width: 100%; min-width: 0; }
+.fld textarea, .eved textarea { min-height: 70px; resize: vertical; }
+.fld input:focus, .fld textarea:focus, .fld select:focus, .rowed input:focus, .rowed select:focus, .eved input:focus, .eved textarea:focus { outline: 2px solid rgba(43, 107, 234, 0.35); border-color: var(--primary); }
+.twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rowed { display: grid; grid-template-columns: minmax(0, 1fr) 104px 30px 30px 32px; gap: 5px; align-items: center; border: 1px solid var(--hair); border-radius: 10px; padding: 6px; }
+.mini-mv { font: inherit; font-size: 12px; line-height: 1; color: var(--ink-2); background: var(--doc); border: 1px solid var(--hair-d); border-radius: 8px; height: 34px; cursor: pointer; }
+.mini-mv:disabled { opacity: .35; cursor: default; }
+.rowed .r-name { grid-column: 1 / -1; font-weight: 500; }
+.rowlist { display: grid; gap: 6px; }
+.rowed select { padding: 7px 4px; }
+.mini-x { font: inherit; font-size: 14px; line-height: 1; color: var(--danger); background: var(--doc); border: 1px solid var(--hair-d); border-radius: 8px; height: 34px; cursor: pointer; }
+.eved { border: 1px solid var(--hair); border-radius: 10px; padding: 8px; display: grid; gap: 5px; }
+.eved .twocol { grid-template-columns: 1fr 120px; }
+.addbtn { font: inherit; font-size: 12.5px; font-weight: 500; color: var(--primary); background: var(--doc); border: 1px dashed var(--hair-d); border-radius: 8px; padding: 7px 10px; cursor: pointer; justify-self: start; }
+.danger-btn { font: inherit; font-size: 12.5px; font-weight: 600; color: var(--danger); background: var(--tint-danger); border: 0; border-radius: 8px; padding: 8px 12px; cursor: pointer; justify-self: start; }
+.focuslist { display: flex; flex-wrap: wrap; gap: 6px; }
+.focuslist label { display: inline-flex; gap: 5px; align-items: center; font-size: 12.5px; color: var(--ink-2); background: var(--surface); border-radius: 999px; padding: 4px 9px; cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 500; }
+
+/* document tabs */
+.docwrap { position: absolute; inset: 0; overflow-y: auto; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 80px max(16px, env(safe-area-inset-left, 0px)); background: var(--surface); }
+.doc { max-width: 1060px; margin: 0 auto; display: grid; gap: 16px; }
+.card { background: var(--doc); border: 1px solid var(--hair); border-radius: 18px; padding: 22px 24px; box-shadow: var(--shadow-card); display: grid; gap: 10px; align-content: start; }
+.card.lead { background:
+    radial-gradient(ellipse 60% 120% at 100% 120%, rgba(0, 33, 73, 0.07) 0%, rgba(0, 33, 73, 0) 70%), var(--doc); }
+.eyebrow { margin: 0; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--pink); }
+.doc h2 { margin: 0; font-size: clamp(22px, 2.6vw, 30px); font-weight: 300; letter-spacing: -.02em; line-height: 1.2; color: var(--ink); }
+.doc h3 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -.01em; line-height: 1.3; color: var(--ink); }
+.doc p { margin: 0; font-size: 14.5px; color: var(--ink-2); max-width: 82ch; }
+.doc p.note { font-size: 12.5px; color: var(--ink-3); }
+.doc ul, .doc ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--ink-2); font-size: 14.5px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 6px; }
+.kpi { border: 1px solid var(--hair); border-radius: 12px; padding: 12px 14px; display: grid; gap: 2px; background: var(--doc); }
+.kpi b { font-size: 24px; font-weight: 500; letter-spacing: -.01em; color: var(--commit); line-height: 1.15; }
+.kpi span { font-size: 12.5px; color: var(--ink-2); }
+.tablewrap { overflow-x: auto; border: 1px solid var(--hair); border-radius: 12px; }
+table.t { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.t th { text-align: left; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); background: var(--surface); padding: 9px 12px; border-bottom: 1px solid var(--hair); }
+table.t td { padding: 10px 12px; border-bottom: 1px solid var(--hair); vertical-align: top; color: var(--ink-2); }
+table.t tr:last-child td { border-bottom: 0; }
+table.t td:first-child { color: var(--ink); }
+table.t td.num, table.t th.num { text-align: right; white-space: nowrap; }
+table.t tr.total td { font-weight: 600; color: var(--ink); background: var(--tint-action); }
+.grid4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.mini { border: 1px solid var(--hair); border-radius: 12px; padding: 14px; display: grid; gap: 4px; align-content: start; }
+.mini b { font-size: 14.5px; font-weight: 600; color: var(--ink); }
+.mini span { font-size: 12.5px; color: var(--pink); font-weight: 500; }
+.mini p { font-size: 13.5px; }
+.two { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.two > div { display: grid; gap: 8px; align-content: start; }
+ol.timeline { list-style: none; padding: 0; gap: 0; border-left: 2px solid var(--hair); margin-left: 6px; }
+ol.timeline li { position: relative; padding: 0 0 14px 18px; display: grid; gap: 2px; }
+ol.timeline li::before { content: ""; position: absolute; left: -7px; top: 5px; width: 12px; height: 12px; border-radius: 50%; background: var(--doc); border: 2px solid var(--commit); }
+ol.timeline b { color: var(--ink); font-weight: 600; font-size: 14px; }
+ol.timeline span { font-size: 14px; color: var(--ink-2); }
+.gapgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.gapi { background: var(--tint-danger); border-radius: 12px; padding: 12px 14px; display: grid; gap: 3px; align-content: start; }
+.gapi b { color: var(--ink); font-size: 14px; }
+.gapi span { color: var(--ink-2); font-size: 13px; }
+.mailcard { max-width: 560px; border: 1px solid var(--hair-d); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-card); }
+.mailcard .mh { background: var(--tint-phone); padding: 12px 16px; border-bottom: 1px solid var(--hair); display: grid; gap: 2px; }
+.mailcard .mh small { font-size: 10.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--pink); }
+.mailcard .mh strong { font-size: 16px; color: var(--ink); font-weight: 600; }
+.mailcard .mm { padding: 10px 16px; font-size: 13px; color: var(--ink-2); border-bottom: 1px solid var(--hair); display: grid; gap: 2px; }
+.mailcard .ml { padding: 12px 16px; border-bottom: 1px solid var(--hair); display: grid; gap: 5px; font-size: 13.5px; color: var(--ink-2); }
+.mailcard .ml b { color: var(--ink); }
+.mailcard .mbtns { display: flex; gap: 6px; margin-top: 4px; }
+.mailcard .mb { font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 7px; background: var(--muted); color: var(--ink-2); }
+.mailcard .mb.ok { background: var(--tint-whatsapp); color: var(--ink-whatsapp); }
+.mailcard .mf { padding: 9px 16px 12px; font-size: 12px; color: var(--ink-3); font-style: italic; }
+.editing [data-edit] { border-radius: 4px; }
+.editing [data-edit]:hover { outline: 1.5px dashed var(--sky-2); outline-offset: 2px; }
+.editing [data-edit]:focus { outline: 2px solid var(--primary); outline-offset: 2px; background: var(--tint-action); }
+.editbar { background: var(--pink); color: #ffffff; border-radius: 12px; padding: 10px 14px; font-size: 13px; font-weight: 500; }
+
+@media (max-width: 760px) {
+  .top { gap: 6px; padding-top: 10px; padding-bottom: 10px; }
+  .brand img { height: 21px; }
+  .title { font-size: 18px; }
+  .right { margin-left: 0; width: 100%; flex-wrap: nowrap; }
+  .tabs { flex: 1 1 auto; min-width: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab, .hbtn { white-space: nowrap; padding: 6px 11px; font-size: 12.5px; flex: none; }
+  .lede, .hint, .legend, .hstatus { display: none !important; }
+  .panel { top: auto; height: 64%; width: 100%; border-left: 0; border-top: 1px solid var(--hair); border-radius: 14px 14px 0 0; }
+  .card { padding: 18px; }
+}
+@media (max-height: 760px) and (min-width: 761px) {
+  .lede, .hint { display: none !important; }
+}
+.print-only { display: none; }
+@media print {
+  @page { size: A4; margin: 12mm; }
+  html, body { height: auto; overflow: visible; background: #ffffff; }
+  body::before { display: none; }
+  .app { display: block; height: auto; }
+  .stage, .lede, .right, .hint, .panel, .dock, .legend { display: none !important; }
+  .top { border-radius: 14px; padding: 16px 20px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .print-only { display: block !important; }
+  #print-root { margin-top: 14px; }
+  #print-root .doc { max-width: none; gap: 12px; }
+  #print-root .docpart { break-before: page; }
+  #print-root .card { box-shadow: none; border-color: var(--hair-d); padding: 16px 18px; break-inside: auto; }
+  #print-root .pnode, #print-root .mini, #print-root .kpi, #print-root .gapi, #print-root .mailcard, #print-root tr, #print-root ol.timeline li, #print-root .pdiagram { break-inside: avoid; }
+  #print-root h2, #print-root h3, #print-root .eyebrow { break-after: avoid; }
+  #print-root .pdiagram { padding: 12px 14px; }
+  #print-root .pd-stage { position: relative; margin: 4px auto 0; overflow: hidden; }
+  #print-root .pd-inner { position: absolute; left: 0; top: 0; }
+  #print-root .node .ic { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #print-root .pd-stage .node { box-shadow: none; }
+  #print-root .pd-stage .edges path.e { opacity: 1; animation: none; }
+  #print-root .card.lead { background: var(--doc); }
+  #print-root .tablewrap { overflow: visible; border-color: var(--hair-d); }
+  #print-root table.t { font-size: 12px; }
+  #print-root .pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  #print-root .pnode h3 { font-size: 16px; }
+  #print-root .pnode .note { font-size: 11.5px; }
+  #print-root .phow { margin: 0; font-size: 12.5px; color: var(--ink-2); }
+  #print-root .phow b { color: var(--ink); }
+  #print-root .pnode.ty-goal { border: 2px solid var(--pink); }
+  #print-root .badge, #print-root .chip, #print-root .gapi, #print-root .kpi, #print-root .mailcard .mh, #print-root .mb, #print-root table.t th, #print-root tr.total td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #print-root a { color: var(--primary); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .edges path.e.on { animation: none; }
+  .world.anim { transition: none; }
+  .node { transition: none; }
+}
+</style>
+
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <div class="top-row">
+      <div class="brand">
+        <span class="wm">Adrageous Media</span>
+        <i aria-hidden="true"></i>
+        <span class="for">Prepared by Scott Burns</span>
+      </div>
+      <h1 class="title">Client onboarding: <strong id="view-title">the automated flow</strong></h1>
+      <div class="right">
+        <div class="tabs" role="tablist" aria-label="Sections">
+          <button class="tab" type="button" role="tab" data-tab="stack" aria-selected="true">Onboarding flow</button>
+          <button class="tab" type="button" role="tab" data-tab="proof" aria-selected="false">Smith Roofing: the example</button>
+          <button class="tab" type="button" role="tab" data-tab="fit" aria-selected="false">How it fits Adrageous</button>
+          <button class="tab" type="button" role="tab" data-tab="connect" aria-selected="false">Tools and set-up</button>
+        </div>
+        <span class="hstatus" id="status" aria-live="polite"></span>
+        <button class="hbtn" type="button" id="save-now" hidden>Save now</button>
+        <button class="hbtn edit-only" type="button" id="download-changes">Download changes</button>
+        <button class="hbtn" type="button" id="pdf">Save as PDF</button>
+        <button class="hbtn" type="button" id="edit-toggle" aria-pressed="false" hidden>Edit</button>
+      </div>
+    </div>
+    <p class="lede" id="view-lede"></p>
+  </header>
+
+  <div class="stage" id="stage">
+    <div id="pane-stack">
+      <div class="canvas" id="canvas" aria-label="Onboarding flow canvas">
+        <div class="world" id="world">
+          <svg class="edges" id="edges" width="12000" height="12000" aria-hidden="true">
+            <defs>
+              <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a8b1bb"></path></marker>
+              <marker id="arr-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2b6bea"></path></marker>
+              <marker id="arr-sel" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c60a4f"></path></marker>
+            </defs>
+            <g id="edge-layer" transform="translate(4000 4000)"></g>
+          </svg>
+          <div id="node-layer"></div>
+        </div>
+      </div>
+      <div class="hint" id="hint"></div>
+      <div class="dock" id="dock">
+        <button class="tool primary" type="button" id="walk">▶ Walk through Smith Roofing</button>
+        <button class="tool" type="button" id="zoom-out" aria-label="Zoom out">−</button>
+        <button class="tool" type="button" id="zoom-in" aria-label="Zoom in">+</button>
+        <button class="tool" type="button" id="fit">Fit</button>
+        <button class="tool" type="button" id="present" aria-pressed="false">Present</button>
+        <button class="tool edit-only" type="button" id="add-box">+ Add box</button>
+        <button class="tool warn edit-only" type="button" id="reset">Reset everything</button>
+      </div>
+      <div class="legend" id="legend" aria-label="Key">
+        <span><b style="background:#002149"></b>Automation</span>
+        <span><b style="background:#2a4b8d"></b>Trigger</span>
+        <span><b style="background:#4c3f80"></b>Team</span>
+        <span><b style="background:#1a6b45"></b>Result</span>
+        <span><b style="background:#c60a4f"></b>Goal</span>
+        <i class="sep" aria-hidden="true"></i>
+        <span class="badge free">Automatic</span><span class="badge low">Client</span><span class="badge paid">Team</span><span class="badge own">In use</span>
+      </div>
+    </div>
+
+    <div class="docwrap" id="pane-proof" hidden>
+      <div class="doc" data-doc="proof">
+        <div class="editbar edit-only">Editing: click any text to change it. Changes save automatically.</div>
+        <section class="card lead">
+          <p class="eyebrow" data-edit>The example</p>
+          <h2 data-edit>Smith Roofing: from signature to live</h2>
+          <p data-edit>Smith Roofing is a made-up roofer, used to show every step a new client goes through. Dave signs on a Monday morning and his campaigns go live two weeks later. All names, times and figures here are examples.</p>
+          <div class="kpis">
+            <div class="kpi"><b data-edit>1 form</b><span data-edit>for the client to fill in, on their phone</span></div>
+            <div class="kpi"><b data-edit>1 link</b><span data-edit>for every account the team needs</span></div>
+            <div class="kpi"><b data-edit>0 calls</b><span data-edit>from Benito to chase anything</span></div>
+            <div class="kpi"><b data-edit>1 tap</b><span data-edit>from Benito to approve the launch</span></div>
+          </div>
+        </section>
+        <section class="card">
+          <p class="eyebrow" data-edit>Step by step</p>
+          <h3 data-edit>What happens, and who does it</h3>
+          <div class="tablewrap"><table class="t">
+            <thead><tr><th>When</th><th>What happens</th><th>Who</th></tr></thead>
+            <tbody>
+              <tr><td data-edit>Mon 09:00</td><td data-edit>Dave signs the proposal on his phone and pays the first month</td><td data-edit><span class="chip low badge">Client</span></td></tr>
+              <tr><td data-edit>Mon 09:01</td><td data-edit>Client record created; welcome text and email sent with one link</td><td data-edit><span class="chip free badge">Automatic</span></td></tr>
+              <tr><td data-edit>Mon 09:02</td><td data-edit>ClickUp project built from the Ads, SEO and Social template; every specialist has their tasks</td><td data-edit><span class="chip free badge">Automatic</span></td></tr>
+              <tr><td data-edit>Mon 19:40</td><td data-edit>Dave completes the intake form after work and books the site visit</td><td data-edit><span class="chip low badge">Client</span></td></tr>
+              <tr><td data-edit>Tue 07:10</td><td data-edit>Google Ads, Google Business Profile and website access granted. Meta still missing</td><td data-edit><span class="chip low badge">Client</span></td></tr>
+              <tr><td data-edit>Thu 07:30</td><td data-edit>Text reminder for the one item left</td><td data-edit><span class="chip free badge">Automatic</span></td></tr>
+              <tr><td data-edit>Thu 12:15</td><td data-edit>Meta access granted; checklist complete</td><td data-edit><span class="chip low badge">Client</span></td></tr>
+              <tr><td data-edit>Wed, week 2</td><td data-edit>Site visit: two roofs filmed and photographed, brief agreed</td><td data-edit><span class="chip paid badge">Team</span></td></tr>
+              <tr><td data-edit>Thu, week 2</td><td data-edit>Call tracking and forms connected; test lead reaches Dave's phone; starting numbers recorded</td><td data-edit><span class="chip paid badge">Team</span></td></tr>
+              <tr><td data-edit>Fri, week 2</td><td data-edit>"Ready to launch" message to Benito, approved from his phone</td><td data-edit><span class="chip paid badge">Benito</span></td></tr>
+              <tr><td data-edit>Mon, week 3</td><td data-edit>Campaigns live; first report booked for 30 days</td><td data-edit><span class="chip free badge">Automatic</span></td></tr>
+            </tbody>
+          </table></div>
+          <p class="note" data-edit>Example timings. The real ones depend on how quickly each client responds.</p>
+        </section>
+        <section class="card">
+          <p class="eyebrow" data-edit>What the client sees</p>
+          <h3 data-edit>Short texts, one link at a time</h3>
+          <div class="mailcard">
+            <div class="mh"><small data-edit>Text message</small><strong data-edit>Monday 09:01 · Welcome</strong></div>
+            <div class="ml"><span data-edit>"Hi Dave, welcome to Adrageous. One link to get you set up, about 10 minutes: [link]. Any questions, just reply to this text."</span></div>
+          </div>
+          <div class="mailcard">
+            <div class="mh"><small data-edit>Text message</small><strong data-edit>Thursday 07:30 · Reminder</strong></div>
+            <div class="ml"><span data-edit>"Morning Dave, just one thing left: Facebook access. It takes 2 minutes: [link]"</span></div>
+          </div>
+          <div class="mailcard">
+            <div class="mh"><small data-edit>Text message</small><strong data-edit>Every new enquiry · Lead alert</strong></div>
+            <div class="ml"><span data-edit>"New enquiry: flat roof repair, Burgess Hill. Sarah, 07700 900123. Sent from your website 2 minutes ago."</span></div>
+          </div>
+        </section>
+        <section class="card">
+          <p class="eyebrow" data-edit>What Benito sees</p>
+          <h3 data-edit>One message, one decision</h3>
+          <div class="mailcard">
+            <div class="mh"><small data-edit>Example</small><strong data-edit>Smith Roofing is ready to launch</strong></div>
+            <div class="mm"><span data-edit><b>To</b> Benito</span><span data-edit><b>Sent</b> Friday 10:00</span></div>
+            <div class="ml">
+              <span data-edit>23 of 23 set-up tasks done. Google Ads, Google Business Profile, Meta and website access in place. Call tracking tested. Starting point: 3 enquiries a week.</span>
+              <span data-edit><b>Nothing unusual flagged.</b></span>
+              <div class="mbtns"><span class="mb ok">Approve launch</span><span class="mb">Send back with a note</span></div>
+            </div>
+            <div class="mf" data-edit>Example message. The checks and wording are set with Benito.</div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="docwrap" id="pane-fit" hidden>
+      <div class="doc" data-doc="fit">
+        <div class="editbar edit-only">Editing: click any text to change it. Changes save automatically.</div>
+        <section class="card lead">
+          <p class="eyebrow" data-edit>How it fits Adrageous</p>
+          <h2 data-edit>The face-to-face stays. The chasing goes.</h2>
+          <p data-edit>Meeting clients on site and Benito's sign-off stay exactly as they are. The automation takes the set-up, chasing and admin in between, inside the tools the team already uses, so every client gets the same complete start.</p>
+        </section>
+        <section class="card">
+          <p class="eyebrow" data-edit>What it takes off Benito</p>
+          <div class="grid4">
+            <div class="mini"><b data-edit>Chasing</b><p data-edit>Logins, logos, photos and answers, chased by text until they are in.</p></div>
+            <div class="mini"><b data-edit>Setting up</b><p data-edit>ClickUp projects, folders and client records, built the moment a client signs.</p></div>
+            <div class="mini"><b data-edit>Briefing</b><p data-edit>Each specialist gets their tasks and the client's answers without a handover call.</p></div>
+            <div class="mini"><b data-edit>Remembering</b><p data-edit>A live checklist per client shows what is done and what is still missing.</p></div>
+          </div>
+        </section>
+        <section class="card">
+          <p class="eyebrow" data-edit>Who does what</p>
+          <h3 data-edit>People do the parts clients value</h3>
+          <div class="grid4">
+            <div class="mini"><b data-edit>The automation</b><p data-edit>Welcomes, collects, chases, builds the workspace, connects the forms and reports.</p></div>
+            <div class="mini"><b data-edit>The client</b><p data-edit>Fills in one form, grants access from one link and books the site visit.</p></div>
+            <div class="mini"><b data-edit>The team</b><p data-edit>Visits the site, films the work, builds the campaigns and sets up tracking.</p></div>
+            <div class="mini"><b data-edit>Benito</b><p data-edit>Signs the client, approves the launch and spends the time saved on selling.</p></div>
+          </div>
+        </section>
+        <section class="card two">
+          <div>
+            <p class="eyebrow" data-edit>What stays the same</p>
+            <ul>
+              <li data-edit>The site visit and meeting the people doing the work.</li>
+              <li data-edit>No set packages: each client still gets what is worth doing.</li>
+              <li data-edit>ClickUp and Zapier, the tools already in use.</li>
+              <li data-edit>Nothing goes live without Benito's yes.</li>
+            </ul>
+          </div>
+          <div>
+            <p class="eyebrow" data-edit>What changes</p>
+            <ul>
+              <li data-edit>Onboarding starts the minute a client signs.</li>
+              <li data-edit>Nobody chases by hand.</li>
+              <li data-edit>Every client has starting numbers to beat.</li>
+              <li data-edit>Benito sees one message per client, not twenty.</li>
+            </ul>
+          </div>
+        </section>
+        <section class="card">
+          <p class="eyebrow" data-edit>What it adds</p>
+          <h3 data-edit>Better proof for every case study</h3>
+          <p data-edit>Because the starting enquiry numbers are recorded for every client, each monthly report shows a real before and after: enquiries, cost per enquiry and, where the client's records allow, jobs won. That turns every new client into a case study with timeframes and figures.</p>
+        </section>
+        <section class="card">
+          <p class="eyebrow" data-edit>How success is measured</p>
+          <div class="kpis">
+            <div class="kpi"><b data-edit>Days</b><span data-edit>from signing to live</span></div>
+            <div class="kpi"><b data-edit>Hours</b><span data-edit>Benito spends per new client</span></div>
+            <div class="kpi"><b data-edit>Items</b><span data-edit>still chased by hand</span></div>
+            <div class="kpi"><b data-edit>Clients</b><span data-edit>with a full before and after</span></div>
+          </div>
+          <p class="note" data-edit>Today's figures are measured in the first week, so the change is shown in real numbers.</p>
+        </section>
+      </div>
+    </div>
+
+    <div class="docwrap" id="pane-connect" hidden>
+      <div class="doc" data-doc="connect">
+        <div class="editbar edit-only">Editing: click any text to change it. Changes save automatically.</div>
+        <section class="card lead">
+          <p class="eyebrow" data-edit>Tools and set-up</p>
+          <h2 data-edit>What it runs on, and how it is switched on</h2>
+          <p data-edit>Built on ClickUp and Zapier, plus a few small tools only where they add something. Everything runs in Adrageous's own accounts, and logins are never sent by text or email.</p>
+        </section>
+        <section class="card">
+          <p class="eyebrow" data-edit>The tools</p>
+          <div class="tablewrap"><table class="t">
+            <thead><tr><th>Tool</th><th>What it does</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td data-edit>ClickUp</td><td data-edit>Client projects and tasks, built from a template per service</td><td data-edit><span class="chip own badge">In use</span></td></tr>
+              <tr><td data-edit>Zapier</td><td data-edit>Connects every step, from signing to the ready check</td><td data-edit><span class="chip own badge">In use</span></td></tr>
+              <tr><td data-edit>CRM</td><td data-edit>Client records and every enquiry</td><td data-edit>Current CRM, to confirm</td></tr>
+              <tr><td data-edit>Signing and payments</td><td data-edit>The trigger that starts onboarding</td><td data-edit>Current tools, to confirm</td></tr>
+              <tr><td data-edit>Intake form</td><td data-edit>One mobile-friendly form with uploads</td><td data-edit>To choose</td></tr>
+              <tr><td data-edit>Access requests</td><td data-edit>Google and Meta access from one link</td><td data-edit>To choose</td></tr>
+              <tr><td data-edit>Text messages</td><td data-edit>Welcome, reminders and lead alerts by SMS or WhatsApp</td><td data-edit>To choose</td></tr>
+              <tr><td data-edit>Call tracking</td><td data-edit>A tracked number per client, so calls are counted</td><td data-edit>To choose</td></tr>
+            </tbody>
+          </table></div>
+        </section>
+        <section class="card">
+          <p class="eyebrow" data-edit>The way</p>
+          <h3 data-edit>Switching it on, in order</h3>
+          <ol>
+            <li data-edit>Walk through today's onboarding with Benito, step by step, and time it.</li>
+            <li data-edit>Build the intake form, welcome messages and ClickUp templates.</li>
+            <li data-edit>Add the access link and the text reminders.</li>
+            <li data-edit>Add tracking, lead alerts and the ready check.</li>
+            <li data-edit>Run the next new client through it, then the next three, and compare with today.</li>
+          </ol>
+        </section>
+        <section class="card">
+          <p class="eyebrow" data-edit>Six things to settle</p>
+          <div class="gapgrid">
+            <div class="gapi"><b data-edit>1 · The CRM</b><span data-edit>Which one is used today, and whether it takes new records automatically.</span></div>
+            <div class="gapi"><b data-edit>2 · The trigger</b><span data-edit>Which tools handle proposals and payments.</span></div>
+            <div class="gapi"><b data-edit>3 · Templates</b><span data-edit>One ClickUp template per service, with the right owner on each task.</span></div>
+            <div class="gapi"><b data-edit>4 · Texts or WhatsApp</b><span data-edit>Which one clients answer fastest.</span></div>
+            <div class="gapi"><b data-edit>5 · Call tracking</b><span data-edit>The provider, and whether it is already in use.</span></div>
+            <div class="gapi"><b data-edit>6 · Security</b><span data-edit>Access granted through the platforms themselves, never passwords by message.</span></div>
+          </div>
+        </section>
+        <section class="card">
+          <p class="eyebrow" data-edit>Questions for Benito</p>
+          <ol>
+            <li data-edit>What happens today when a new client signs, step by step?</li>
+            <li data-edit>How many new clients a month, and how long until each one is live?</li>
+            <li data-edit>Which part takes the most chasing?</li>
+            <li data-edit>Which CRM and signing tools are in use now?</li>
+            <li data-edit>Which client would be first through the new flow?</li>
+          </ol>
+        </section>
+      </div>
+    </div>
+
+    <aside class="panel" id="panel" hidden aria-live="polite"></aside>
+  </div>
+  <div class="print-only" id="print-root" aria-hidden="true">
+  </div>
+</div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var IC = {
+    agent: '<svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.6L18.5 9.4l-4.7 1.8L12 16l-1.8-4.8L5.5 9.4l4.7-1.8z"/><path d="M18.5 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>',
+    data: '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8"/><path d="M4.5 5.5v6.5c0 1.6 3.4 2.8 7.5 2.8s7.5-1.2 7.5-2.8V5.5"/><path d="M4.5 12v6.5c0 1.6 3.4 2.8 7.5 2.8s7.5-1.2 7.5-2.8V12"/></svg>',
+    people: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.8-3.8 3.9-6 7.5-6s6.7 2.2 7.5 6"/><path d="M15.5 11.5l1.6 1.6 3-3.2"/></svg>',
+    action: '<svg viewBox="0 0 24 24"><path d="M4 12l15-7-5 15-3-6z"/><path d="M11 14l8-9"/></svg>',
+    goal: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg>',
+    mail: '<svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 7l8 6 8-6"/></svg>',
+    web: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.5 5.3 3.5 8.5s-1.1 6.1-3.5 8.5c-2.4-2.4-3.5-5.3-3.5-8.5S9.6 5.9 12 3.5z"/></svg>',
+    eye: '<svg viewBox="0 0 24 24"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></svg>'
+  };
+  var TYPES = [['agent', 'Automation'], ['data', 'Trigger'], ['people', 'Team'], ['action', 'Result'], ['goal', 'Goal']];
+  var ICONS = [['agent', 'Sparkle (automation)'], ['eye', 'Eye (watching)'], ['data', 'Database'], ['web', 'Globe (website)'], ['people', 'Person'], ['mail', 'Email'], ['action', 'Send'], ['goal', 'Target']];
+  var TYPE_LABEL = { agent: 'Automation', data: 'Trigger', people: 'Team', action: 'Result', goal: 'Goal' };
+  var TAGS = [['', 'No tag'], ['free', 'Automatic'], ['low', 'Client'], ['paid', 'Team'], ['own', 'In use']];
+  var TAG_LABEL = { free: 'Automatic', low: 'Client', paid: 'Team', own: 'In use' };
+  var WIDTHS = [[300, 'Narrow'], [360, 'Medium'], [380, 'Standard'], [440, 'Wide']];
+
+  /* ---------- default content ---------- */
+  function row(t, c, tag) { return { t: t, c: c || '', tag: tag || '' }; }
+  var DEFAULT_NODES = [
+    { id: 'signed', type: 'data', icon: 'action', x: 0, y: 0, w: 380, eb: 'The trigger', nm: 'Client signs', sb: 'Proposal signed or first payment',
+      rows: [row('Proposal signed online', 'E-signature', 'low'), row('First payment taken', 'Card or Direct Debit', 'low'), row('Client record created', 'CRM', 'free')],
+      does: 'A signed proposal or the first payment starts everything. Nobody has to remember to kick it off.',
+      body: 'Onboarding starts from one event: the proposal is signed or the first payment lands, whichever comes first. That creates the client record and starts every step after it, so nothing waits for Benito to find the time.' },
+    { id: 'welcome', type: 'agent', icon: 'mail', x: 0, y: 280, w: 380, eb: 'Automation 1', nm: 'Welcome and intake', sb: 'One form, filled in on their phone',
+      rows: [row('Welcome text and email', 'Within a minute', 'free'), row('Services, areas and job values', 'Intake form', 'low'), row('Logo, photos and reviews link', 'Uploads', 'low'), row('Who gets the leads, and how', 'Intake form', 'low')],
+      does: 'Welcomes the client and collects everything the team needs in one short form.',
+      body: 'Within a minute of signing, the client gets a welcome text and email with one link. The form asks only what the team needs: services and areas covered, average job value, the jobs they want more of, their logo and photos, their reviews link and who should receive each new lead. It works on a phone, because most tradespeople fill it in after work.' },
+    { id: 'access', type: 'agent', icon: 'web', x: 0, y: 590, w: 380, eb: 'Automation 2', nm: 'Access collected', sb: 'Every account from one link',
+      rows: [row('Google Ads and Analytics', 'Access request', 'low'), row('Google Business Profile', 'Manager invite', 'low'), row('Meta ad account and page', 'Partner request', 'low'), row('Website and domain', 'Secure access', 'low')],
+      does: 'Requests every account the team needs through one link, and ticks each one off as it is granted.',
+      body: 'One link asks for access to Google Ads, Analytics, the Google Business Profile, the Meta ad account and page, and the website and domain. Each item ticks itself off when it is granted. Access is given through the platforms themselves, so passwords are never sent by text or email.' },
+    { id: 'chase', type: 'agent', icon: 'eye', x: 0, y: 900, w: 380, eb: 'Automation 3', nm: 'Chase what is missing', sb: 'Until the checklist is complete',
+      rows: [row('Text reminder every two days', 'SMS or WhatsApp', 'free'), row('Checklist page for the client', 'Shows what is left', 'free'), row('Flag to Benito after seven days', 'One message', 'free')],
+      does: 'Chases anything missing by text until everything is in, then hands over to tracking set-up.',
+      body: 'Anything still missing is chased by text every two days, because tradespeople rarely read email during the day. The client sees a simple checklist of what is left. If something is still missing after seven days, Benito gets one message so he can pick up the phone.' },
+    { id: 'workspace', type: 'agent', icon: 'data', x: 500, y: 280, w: 380, eb: 'Automation 4', nm: 'Workspace built', sb: 'Ready before anyone asks',
+      rows: [row('ClickUp project from a template', 'Per service bought', 'own'), row('Tasks for ads, SEO, social, video and design', 'Assigned by role', 'free'), row('Client folder with their uploads', 'Shared drive', 'free'), row('Team told in one message', 'Team chat', 'free')],
+      does: "Builds the client's ClickUp project from a template and gives each specialist their tasks.",
+      body: "As soon as the client signs, their ClickUp project is built from a template for each service they bought. Tasks go straight to the right person: ads to Harry, SEO to Chester, social to Amber, filming to Billy and design to Nadya. The intake answers and uploads land in the client's folder, so nobody asks the client the same question twice." },
+    { id: 'visit', type: 'people', icon: 'people', x: 500, y: 590, w: 380, eb: 'The team', nm: 'Site visit and filming', sb: 'Booked by the client',
+      rows: [row('Client picks a slot', 'Booking link', 'low'), row('Real jobs filmed and photographed', 'On site', 'paid'), row('Brief for ads and content', 'From the visit', 'paid')],
+      does: 'Meeting the client on site stays human. Only the booking is automatic.',
+      body: 'Meeting the client and the people doing the work stays exactly as it is. The only change is that the client books the visit from a link once their form is complete, and the team arrives already knowing the answers.' },
+    { id: 'tracking', type: 'people', icon: 'data', x: 500, y: 900, w: 380, eb: 'Team and automation', nm: 'Tracking and lead alerts', sb: 'Every enquiry counted from day one',
+      rows: [row('Call tracking number', 'Per client', 'paid'), row('Website forms into the CRM', 'Automatic', 'free'), row("Instant lead alert to the client's phone", 'Text or WhatsApp', 'free'), row('Starting enquiry numbers recorded', 'The baseline', 'free')],
+      does: 'Sets up tracking and lead alerts, and records the starting numbers every report is measured against.',
+      body: "Once access is in and the visit is done, the team sets up call tracking and connects the website forms. Every new enquiry goes into the CRM and straight to the client's phone. The enquiry numbers before launch are recorded automatically, so every client has a real before and after." },
+    { id: 'goal', type: 'goal', icon: 'goal', x: 1000, y: 280, w: 360, eb: 'The goal', nm: 'More clients, onboarded faster', sb: 'Benito back on selling', rows: [], does: '',
+      body: 'Every new client gets the same complete start, faster, without Benito chasing anyone. That frees him for the work that grows the agency: meeting tradespeople and signing them.' },
+    { id: 'launch', type: 'action', icon: 'action', x: 1000, y: 590, w: 360, eb: 'Result', nm: 'Campaigns go live', sb: 'With a baseline to beat',
+      rows: [row('Ads, SEO and social switched on', 'Per service', 'paid'), row('First report booked', 'In 30 days', 'free'), row('Monthly report: spend, enquiries, jobs', 'Automatic', 'free')], does: '',
+      body: 'Campaigns go live with tracking already working. The first report is booked for 30 days later, and every monthly report compares the results with the starting numbers.' },
+    { id: 'ready', type: 'people', icon: 'people', x: 1000, y: 900, w: 360, eb: 'Benito', nm: 'Ready to launch', sb: 'One message, one decision',
+      rows: [row('Checklist all ticked', 'Automatic check', 'free'), row('"Ready to launch" message', 'To Benito', 'free'), row('Launch approved', 'One tap', 'paid')],
+      does: "Benito gets one 'ready to launch' message instead of chasing six people.",
+      body: 'When every item is ticked, Benito gets one message: ready to launch, with anything unusual flagged. He approves it, or sends it back with a note. Nothing goes live without his yes.' }
+  ];
+  var DEFAULT_EDGES = [
+    ['signed', 'welcome'], ['welcome', 'access'], ['access', 'chase'], ['chase', 'tracking'],
+    ['welcome', 'workspace'], ['workspace', 'visit'], ['visit', 'tracking'],
+    ['tracking', 'ready'], ['ready', 'launch'], ['launch', 'goal']
+  ];
+  function ev(s, d, f, u) { return { s: s, d: d, f: f, u: u || '' }; }
+  var DEFAULT_TOUR = [
+    { f: ['all'], t: 'One signature, then it runs itself', x: 'This walkthrough follows Smith Roofing, a made-up client, from signing to launch. Every name, time and figure is an example.', how: '', eh: 'The example client',
+      ev: [ev('Smith Roofing', 'Made-up client', 'Dave Smith, a roofer in Mid Sussex with two vans, signs up for Google Ads, SEO and social on a Monday morning.', '')] },
+    { f: ['signed'], t: 'Monday 09:00 · Dave signs', x: 'Dave accepts the proposal on his phone and pays the first month. His client record is created and onboarding starts.', how: 'Triggered by the signed proposal or the first payment, whichever comes first.', eh: 'What happened',
+      ev: [ev('Proposal signed', 'Mon 09:00', 'Accepted online, on his phone.', ''), ev('Record created', 'Mon 09:01', 'First payment taken; client record created in the CRM.', '')] },
+    { f: ['welcome'], t: 'Monday 09:01 · Welcome and intake', x: 'Dave gets a welcome text and email with one link. He fills in the form that evening after work.', how: '', eh: 'What Dave receives',
+      ev: [ev('Text message', 'Mon 09:01', '"Hi Dave, welcome to Adrageous. One link to get you set up, about 10 minutes: [link]. Any questions, just reply to this text."', ''),
+           ev('Form completed', 'Mon 19:40', 'Pitched roofs, flat roofs and repairs; covers Haywards Heath and Burgess Hill; average job about £4,500; logo and 12 job photos uploaded; leads to his mobile.', '')] },
+    { f: ['workspace'], t: 'Monday 09:02 · Workspace built', x: 'Before Dave has opened his texts, his ClickUp project exists and every specialist has their tasks.', how: '', eh: 'What the team sees',
+      ev: [ev('ClickUp', 'Mon 09:02', 'Project "Smith Roofing" built from the Ads, SEO and Social template: 23 tasks.', ''),
+           ev('Assigned', 'Mon 09:02', 'Ads set-up to Harry, Google Business Profile to Chester, content plan to Amber, filming to Billy, ad designs to Nadya.', ''),
+           ev('Team message', 'Mon 09:02', '"New client: Smith Roofing. Ads, SEO and social. Intake form pending."', '')] },
+    { f: ['access'], t: 'Tuesday 07:10 · Access arrives', x: 'Dave taps the access link before his first job. Google and the website come through; Meta does not.', how: '', eh: 'Access checklist',
+      ev: [ev('Google Ads', 'Tue 07:10', 'Granted', ''), ev('Google Business Profile', 'Tue 07:11', 'Granted', ''), ev('Website', 'Tue 07:14', 'Granted', ''), ev('Meta page and ad account', '', 'Still missing', '')] },
+    { f: ['chase'], t: 'Thursday 07:30 · Chased by text', x: 'Meta is still missing, so Dave gets a short text with the one step left. He sorts it at lunchtime.', how: 'Had it still been missing after seven days, Benito would have had one message to call Dave.', eh: 'What happened',
+      ev: [ev('Reminder', 'Thu 07:30', '"Morning Dave, just one thing left: Facebook access. It takes 2 minutes: [link]"', ''), ev('Granted', 'Thu 12:15', 'Meta page and ad account. Checklist complete.', '')] },
+    { f: ['visit'], t: 'Wednesday, week 2 · Site visit', x: 'Dave booked the visit from the link as soon as his form was in. Billy films two roofs and the team meets Dave on site.', how: '', eh: 'What happened',
+      ev: [ev('Booked', 'Mon 19:45', 'Dave picked Wednesday 08:00 the following week.', ''), ev('On site', 'Wed 08:00', 'Two roofs filmed and photographed; brief agreed for the first ads.', '')] },
+    { f: ['tracking'], t: 'Thursday, week 2 · Tracking and lead alerts', x: "Call tracking and the website forms are connected. A test enquiry reaches Dave's phone in seconds.", how: "Example figures. The real starting numbers come from each client's own data.", eh: 'The baseline',
+      ev: [ev('Test lead', 'Thu 15:20', "Reached Dave's phone by text 6 seconds after the form was sent.", ''), ev('Starting numbers', 'Last 4 weeks', '3 enquiries a week from the old website, recorded automatically.', '')] },
+    { f: ['ready'], t: 'Friday, week 2 · Ready to launch', x: 'Every item is ticked, so Benito gets one message. He approves it from his phone.', how: '', eh: 'What Benito sees',
+      ev: [ev('Message', 'Fri 10:00', '"Smith Roofing is ready to launch. 23 of 23 tasks done. Nothing unusual flagged."', ''), ev('Approved', 'Fri 10:04', 'Launch approved with one tap.', '')] },
+    { f: ['launch'], t: 'Monday, week 3 · Live', x: 'Ads, SEO and social go live with tracking already working. The first report is booked for 30 days.', how: '', eh: 'What happens next',
+      ev: [ev('First report', 'In 30 days', 'Spend, enquiries, cost per enquiry and jobs won, compared with 3 enquiries a week before launch.', '')] },
+    { f: ['goal'], t: 'The goal', x: "Smith Roofing went from signature to live in two weeks, and Benito's part was one approval. Every client gets the same start, and he stays on selling.", how: '', ev: [] }
+  ];
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  var model = { nodes: clone(DEFAULT_NODES), edges: clone(DEFAULT_EDGES), tour: clone(DEFAULT_TOUR), docs: {} };
+
+  /* ---------- state ---------- */
+  var FAR = 0.9;
+  var tab = 'stack';
+  var editMode = false, presentMode = false;
+  var zoom = 0.7, panX = 20, panY = 20, userMoved = false;
+  var selNode = null, selEdge = null, tourIdx = null, panelMode = null;
+  var reduceMotion = false;
+  try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { reduceMotion = false; }
+
+  var appEl = document.getElementById('app');
+  var canvas = document.getElementById('canvas');
+  var world = document.getElementById('world');
+  var nodeLayer = document.getElementById('node-layer');
+  var edgeLayer = document.getElementById('edge-layer');
+  var svgEl = document.getElementById('edges');
+  var statusEl = document.getElementById('status');
+  var panel = document.getElementById('panel');
+  var dock = document.getElementById('dock');
+  var legendEl = document.getElementById('legend');
+  var hintEl = document.getElementById('hint');
+  function setStatus(t) { statusEl.textContent = t; }
+  try { new MutationObserver(function () { appEl.classList.toggle('panel-open', !panel.hidden); }).observe(panel, { attributes: true, attributeFilter: ['hidden'] }); } catch (e) { /* older browsers */ }
+  function nodeById(id) { for (var i = 0; i < model.nodes.length; i++) if (model.nodes[i].id === id) return model.nodes[i]; return null; }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined && text !== null) e.textContent = text; return e; }
+
+  /* ---------- nodes ---------- */
+  var els = {};
+  function renderNodes() {
+    nodeLayer.innerHTML = '';
+    els = {};
+    model.nodes.forEach(function (n) {
+      var b = el('div', 'node ty-' + n.type);
+      b.dataset.id = n.id;
+      b.setAttribute('role', 'button');
+      b.setAttribute('tabindex', '0');
+      b.setAttribute('aria-label', (n.eb ? n.eb + ': ' : '') + n.nm);
+      b.style.left = n.x + 'px';
+      b.style.top = n.y + 'px';
+      b.style.width = (n.w || 380) + 'px';
+      var head = el('div', 'nh');
+      var ic = el('span', 'ic');
+      ic.innerHTML = IC[n.icon] || IC[n.type] || IC.agent;
+      var tx = el('span', 'tx');
+      if (n.eb) tx.appendChild(el('span', 'eb', n.eb));
+      tx.appendChild(el('span', 'nm', n.nm));
+      if (n.sb) tx.appendChild(el('span', 'sb', n.sb));
+      head.appendChild(ic); head.appendChild(tx);
+      b.appendChild(head);
+      if (n.rows && n.rows.length) {
+        var rows = el('div', 'rows');
+        n.rows.forEach(function (r) {
+          var rw = el('div', 'lrow');
+          rw.appendChild(el('span', 'ln', r.t));
+          if (r.c) rw.appendChild(el('span', 'lc', r.c));
+          if (r.tag && TAG_LABEL[r.tag]) rw.appendChild(el('span', 'badge ' + r.tag, TAG_LABEL[r.tag]));
+          rows.appendChild(rw);
+        });
+        b.appendChild(rows);
+      }
+      if (n.does) {
+        var d = el('div', 'does');
+        d.appendChild(el('b', null, 'How: '));
+        d.appendChild(document.createTextNode(n.does));
+        b.appendChild(d);
+      }
+      var port = el('span', 'port');
+      port.title = 'Drag onto another box to connect';
+      b.appendChild(port);
+      nodeLayer.appendChild(b);
+      els[n.id] = b;
+    });
+  }
+  function box(id) {
+    var e = els[id], n = nodeById(id);
+    if (!e || !n) return null;
+    return { x: n.x, y: n.y, w: e.offsetWidth, h: e.offsetHeight };
+  }
+
+  /* ---------- lines: side to side like n8n, top to bottom when stacked ---------- */
+  function sideMode(a, b) {
+    var G = 24;
+    if (b.x >= a.x + a.w + G) return 'R';
+    if (a.x >= b.x + b.w + G) return 'L';
+    if (b.y >= a.y + a.h) return 'D';
+    if (a.y >= b.y + b.h) return 'U';
+    return 'R';
+  }
+  function computeRoutes(edges) {
+    var routes = [], sides = {};
+    function push(id, side, entry) { var k = id + '|' + side; (sides[k] = sides[k] || []).push(entry); }
+    edges.forEach(function (e, i) {
+      var a = box(e[0]), b = box(e[1]);
+      if (!a || !b) return;
+      var r = { i: i, e: e, a: a, b: b };
+      r.mode = sideMode(a, b);
+      var sa = { R: 'r', L: 'l', D: 'b', U: 't' }[r.mode], sb = { R: 'l', L: 'r', D: 't', U: 'b' }[r.mode];
+      push(e[0], sa, { r: r, end: 'pa', key: (sa === 'l' || sa === 'r') ? b.y + b.h / 2 : b.x + b.w / 2 });
+      push(e[1], sb, { r: r, end: 'pb', key: (sb === 'l' || sb === 'r') ? a.y + a.h / 2 : a.x + a.w / 2 });
+      routes.push(r);
+    });
+    Object.keys(sides).forEach(function (k) {
+      var parts = k.split('|'), side = parts[1], bx = box(parts[0]), list = sides[k];
+      list.sort(function (p, q) { return p.key - q.key; });
+      var n = list.length, vertical = side === 'l' || side === 'r';
+      var len = vertical ? bx.h : bx.w;
+      var span = n > 1 ? Math.min(len * 0.5, (n - 1) * (vertical ? 14 : 28)) : 0;
+      list.forEach(function (p, j) {
+        var off = n > 1 ? -span / 2 + j * span / (n - 1) : 0;
+        var pt;
+        if (side === 'r') pt = [bx.x + bx.w, bx.y + Math.min(bx.h / 2, 60) + off];
+        else if (side === 'l') pt = [bx.x, bx.y + Math.min(bx.h / 2, 60) + off];
+        else if (side === 'b') pt = [bx.x + bx.w / 2 + off, bx.y + bx.h];
+        else pt = [bx.x + bx.w / 2 + off, bx.y];
+        p.r[p.end] = pt;
+      });
+    });
+    return routes;
+  }
+  function cubic(p, c1, c2, q) {
+    return { d: 'M' + p[0] + ',' + p[1] + ' C' + c1[0] + ',' + c1[1] + ' ' + c2[0] + ',' + c2[1] + ' ' + q[0] + ',' + q[1], mx: (p[0] + 3 * c1[0] + 3 * c2[0] + q[0]) / 8, my: (p[1] + 3 * c1[1] + 3 * c2[1] + q[1]) / 8 };
+  }
+  function geom(r) {
+    var p = r.pa, q = r.pb, d;
+    if (r.mode === 'R') { d = Math.max(40, (q[0] - p[0]) * 0.5); return cubic(p, [p[0] + d, p[1]], [q[0] - d, q[1]], q); }
+    if (r.mode === 'L') { d = Math.max(40, (p[0] - q[0]) * 0.5); return cubic(p, [p[0] - d, p[1]], [q[0] + d, q[1]], q); }
+    if (r.mode === 'D') { d = Math.max(20, (q[1] - p[1]) * 0.5); return cubic(p, [p[0], p[1] + d], [q[0], q[1] - d], q); }
+    d = Math.max(20, (p[1] - q[1]) * 0.5); return cubic(p, [p[0], p[1] - d], [q[0], q[1] + d], q);
+  }
+  function focusSet() {
+    if (selNode) {
+      var s = {}; s[selNode] = 1;
+      model.edges.forEach(function (e) { if (e[0] === selNode) s[e[1]] = 1; if (e[1] === selNode) s[e[0]] = 1; });
+      return { nodes: s, lit: {}, on: function (e) { return e[0] === selNode || e[1] === selNode; } };
+    }
+    if (tourIdx !== null && model.tour[tourIdx]) {
+      var st = model.tour[tourIdx];
+      if (!st.f || !st.f.length || st.f.indexOf('all') >= 0) return null;
+      var ns = {};
+      st.f.forEach(function (id) { ns[id] = 1; });
+      return { nodes: ns, lit: ns, on: function (e) { return !!(ns[e[0]] && ns[e[1]]); } };
+    }
+    return null;
+  }
+  var xBtn = null;
+  function renderEdges() {
+    edgeLayer.innerHTML = '';
+    var f = focusSet();
+    svgEl.classList.toggle('focus', !!f);
+    computeRoutes(model.edges).forEach(function (r) {
+      var g = geom(r);
+      var on = !!f && f.on(r.e);
+      var hit = document.createElementNS(NS, 'path');
+      hit.setAttribute('d', g.d); hit.setAttribute('class', 'hit'); hit.dataset.i = r.i;
+      var p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', g.d);
+      p.setAttribute('class', 'e' + (on ? ' on' : '') + (selEdge === r.i ? ' sel' : ''));
+      p.setAttribute('marker-end', selEdge === r.i ? 'url(#arr-sel)' : (on ? 'url(#arr-on)' : 'url(#arr)'));
+      edgeLayer.appendChild(hit);
+      edgeLayer.appendChild(p);
+      r.e._m = [g.mx, g.my];
+    });
+    Object.keys(els).forEach(function (id) {
+      els[id].classList.toggle('sel', id === selNode);
+      els[id].classList.toggle('dim', !!f && !f.nodes[id]);
+      els[id].classList.toggle('lit', !!f && !!f.lit[id] && !selNode);
+    });
+    if (xBtn) { xBtn.remove(); xBtn = null; }
+    var se = selEdge !== null ? model.edges[selEdge] : null;
+    if (se && se._m) {
+      xBtn = el('button', 'x-btn', 'Remove line');
+      xBtn.type = 'button';
+      xBtn.style.left = se._m[0] + 'px';
+      xBtn.style.top = se._m[1] + 'px';
+      xBtn.addEventListener('click', function (ev2) { ev2.stopPropagation(); removeSelectedEdge(); });
+      world.appendChild(xBtn);
+    }
+  }
+  function renderAll() { renderNodes(); renderEdges(); }
+
+  /* ---------- camera ---------- */
+  function applyView() {
+    world.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + zoom + ')';
+    var far = zoom < FAR;
+    if (far !== canvas.classList.contains('far')) { canvas.classList.toggle('far', far); renderEdges(); return true; }
+    return false;
+  }
+  function union(list) {
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    list.forEach(function (b) { if (!b) return; minX = Math.min(minX, b.x); minY = Math.min(minY, b.y); maxX = Math.max(maxX, b.x + b.w); maxY = Math.max(maxY, b.y + b.h); });
+    if (minX === Infinity) return { x: 0, y: 0, w: 400, h: 300 };
+    return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+  }
+  function allRect() { var r = union(Object.keys(els).map(box)); return { x: r.x - 8, y: r.y - 12, w: r.w + 24, h: r.h + 24 }; }
+  var animT = null;
+  function camera(rectFn, animate, maxZoom, overview) {
+    for (var pass = 0; pass < 2; pass++) {
+      var rc = rectFn();
+      var r = canvas.getBoundingClientRect();
+      var side = 24, top = 16, right = 0;
+      if (hintEl.offsetParent !== null) top = hintEl.offsetTop + hintEl.offsetHeight + 12;
+      var limit = dock.getBoundingClientRect().top;
+      if (legendEl.offsetParent !== null) limit = Math.min(limit, legendEl.getBoundingClientRect().top);
+      var bottom = Math.max(16, r.bottom - limit + 12);
+      var narrow = r.width <= 760;
+      if (!panel.hidden && !narrow) right = panel.offsetWidth;
+      if (!panel.hidden && narrow) bottom = Math.max(bottom, panel.offsetHeight + 12);
+      var availW = Math.max(160, r.width - right - side * 2), availH = Math.max(120, r.height - top - bottom);
+      if (overview && narrow) {
+        zoom = Math.max(0.18, Math.min(0.6, availH / rc.h));
+        panX = 16 - rc.x * zoom;
+      } else {
+        zoom = Math.max(0.18, Math.min(maxZoom, Math.min(availW / rc.w, availH / rc.h)));
+        panX = side + (availW - rc.w * zoom) / 2 - rc.x * zoom;
+      }
+      panY = top + Math.max(0, (availH - rc.h * zoom) / 2) - rc.y * zoom;
+      if (pass === 0 && animate && !reduceMotion) {
+        world.classList.add('anim');
+        clearTimeout(animT);
+        animT = setTimeout(function () { world.classList.remove('anim'); }, 600);
+      }
+      if (!applyView()) break;
+    }
+    userMoved = false;
+  }
+  function fit(animate) { camera(allRect, animate, 1.1, true); }
+  function zoomAt(f, cx, cy) {
+    world.classList.remove('anim');
+    var nz = Math.max(0.18, Math.min(1.8, zoom * f));
+    var wx = (cx - panX) / zoom, wy = (cy - panY) / zoom;
+    zoom = nz; panX = cx - wx * zoom; panY = cy - wy * zoom;
+    userMoved = true;
+    applyView();
+  }
+
+  /* ---------- side panel ---------- */
+  function clearPanel() { panel.innerHTML = ''; }
+  function panelHead(kind, closeLabel, onClose) {
+    var h = el('div', 'head');
+    h.appendChild(el('p', 'p-kind', kind));
+    var c = el('button', 'close', closeLabel || 'Close');
+    c.type = 'button';
+    c.addEventListener('click', onClose || closePanel);
+    h.appendChild(c);
+    panel.appendChild(h);
+  }
+  function closePanel() {
+    panel.hidden = true; panelMode = null;
+    if (tourIdx !== null) { tourIdx = null; appEl.classList.remove('touring'); document.getElementById('walk').hidden = false; }
+    selNode = null; selEdge = null;
+    renderEdges();
+  }
+  function showDetails(id) {
+    var n = nodeById(id);
+    if (!n) return;
+    clearPanel();
+    panelMode = 'detail';
+    var back = tourIdx !== null;
+    panelHead((n.eb || TYPE_LABEL[n.type]), back ? 'Back to the walkthrough' : 'Close', back ? function () { selNode = null; goStep(tourIdx); } : closePanel);
+    panel.appendChild(el('h2', null, n.nm));
+    if (n.sb) panel.appendChild(el('p', null, n.sb));
+    if (n.body) panel.appendChild(el('p', null, n.body));
+    if (n.rows && n.rows.length) {
+      panel.appendChild(el('h4', null, n.type === 'agent' || n.type === 'data' ? 'Sources it reads' : 'Details'));
+      var s = el('div', 'srcs');
+      n.rows.forEach(function (r) {
+        var rw = el('div', 'lrow');
+        rw.appendChild(el('span', 'ln', r.t));
+        if (r.c) rw.appendChild(el('span', 'lc', r.c));
+        if (r.tag && TAG_LABEL[r.tag]) rw.appendChild(el('span', 'badge ' + r.tag, TAG_LABEL[r.tag]));
+        s.appendChild(rw);
+      });
+      panel.appendChild(s);
+    }
+    if (n.does) { panel.appendChild(el('h4', null, 'How it works')); panel.appendChild(el('div', 'how', n.does)); }
+    model.tour.forEach(function (st, i) {
+      if (!st.f || st.f.indexOf(id) < 0 || st.f.indexOf('all') >= 0) return;
+      panel.appendChild(el('h4', null, 'In the Smith Roofing example'));
+      if (st.x) panel.appendChild(el('p', null, st.x));
+      if (st.ev && st.ev.length) panel.appendChild(evList(st.ev));
+      if (!back) {
+        var go = el('button', 'addbtn', 'Show step ' + (i + 1) + ' of the walkthrough');
+        go.type = 'button';
+        go.addEventListener('click', function () { selNode = null; goStep(i); });
+        panel.appendChild(go);
+      }
+    });
+    var ins = [], outs = [];
+    model.edges.forEach(function (e) { if (e[1] === id) ins.push(e[0]); if (e[0] === id) outs.push(e[1]); });
+    var links = el('div', 'links');
+    function line(label, ids) { if (!ids.length) return; var p = el('div'); p.appendChild(el('b', null, label + ' ')); p.appendChild(document.createTextNode(ids.map(function (i) { var x = nodeById(i); return x ? x.nm : i; }).join(', '))); links.appendChild(p); }
+    line('From:', ins); line('To:', outs);
+    if (links.childNodes.length) panel.appendChild(links);
+    panel.hidden = false;
+    keepVisible(box(id));
+  }
+  function keepVisible(b) {
+    if (!b || window.innerWidth <= 760) return;
+    var r = canvas.getBoundingClientRect();
+    var limit = r.width - panel.offsetWidth - 24;
+    var right = panX + (b.x + b.w + 10) * zoom;
+    var room = panX + b.x * zoom - 16;
+    var shift = Math.min(right - limit, room);
+    if (shift > 0) { world.classList.remove('anim'); panX -= shift; userMoved = true; applyView(); }
+  }
+
+  /* ---------- editor (Edit mode) ---------- */
+  function field(label, value, onInput, multiline) {
+    var f = el('div', 'fld');
+    var l = el('label', null, label);
+    var inp = multiline ? el('textarea') : el('input');
+    if (!multiline) inp.type = 'text';
+    inp.value = value || '';
+    var fid = 'f' + Math.random().toString(36).slice(2, 9);
+    inp.id = fid; l.htmlFor = fid;
+    inp.addEventListener('input', function () { onInput(inp.value); });
+    f.appendChild(l); f.appendChild(inp);
+    return f;
+  }
+  function selectField(label, options, value, onChange) {
+    var f = el('div', 'fld');
+    var l = el('label', null, label);
+    var s = el('select');
+    options.forEach(function (o) { var op = el('option', null, o[1]); op.value = o[0]; if (String(o[0]) === String(value)) op.selected = true; s.appendChild(op); });
+    var fid = 'f' + Math.random().toString(36).slice(2, 9);
+    s.id = fid; l.htmlFor = fid;
+    s.addEventListener('change', function () { onChange(s.value); });
+    f.appendChild(l); f.appendChild(s);
+    return f;
+  }
+  function changed(which) { renderAll(); queueSave(which || 'canvas'); }
+  function showEditor(id) {
+    var n = nodeById(id);
+    if (!n) return;
+    clearPanel();
+    panelMode = 'edit';
+    panelHead('Edit box', 'Done', closePanel);
+    var two = el('div', 'twocol');
+    two.appendChild(selectField('Kind', TYPES, n.type, function (v) { n.type = v; if (['agent', 'data', 'people', 'action', 'goal'].indexOf(n.icon) >= 0 || !n.icon) n.icon = v; changed(); }));
+    var wopts = WIDTHS.slice(); if (!wopts.some(function (o) { return o[0] === n.w; })) wopts.push([n.w, n.w + ' px']);
+    two.appendChild(selectField('Width', wopts, n.w || 380, function (v) { n.w = Number(v); changed(); }));
+    panel.appendChild(two);
+    panel.appendChild(selectField('Icon', ICONS, n.icon || n.type, function (v) { n.icon = v; changed(); }));
+    panel.appendChild(field('Label above the title', n.eb, function (v) { n.eb = v; changed(); }));
+    panel.appendChild(field('Title', n.nm, function (v) { n.nm = v; changed(); }));
+    panel.appendChild(field('Subtitle', n.sb, function (v) { n.sb = v; changed(); }));
+    panel.appendChild(el('span', 'fldlabel', 'Rows (sources or details)'));
+    var rowsBox = el('div', 'fld');
+    function drawRows() {
+      rowsBox.innerHTML = '';
+      var list = el('div', 'rowlist');
+      (n.rows || []).forEach(function (r, i) {
+        var line = el('div', 'rowed');
+        var a = el('input', 'r-name'); a.type = 'text'; a.value = r.t; a.placeholder = 'Source or detail'; a.setAttribute('aria-label', 'Row ' + (i + 1) + ' name');
+        a.addEventListener('input', function () { r.t = a.value; changed(); });
+        var c = el('input'); c.type = 'text'; c.value = r.c; c.placeholder = 'Connector'; c.setAttribute('aria-label', 'Row ' + (i + 1) + ' connector');
+        c.addEventListener('input', function () { r.c = c.value; changed(); });
+        var t = el('select'); t.setAttribute('aria-label', 'Row ' + (i + 1) + ' cost tag');
+        TAGS.forEach(function (o) { var op = el('option', null, o[1]); op.value = o[0]; if (o[0] === r.tag) op.selected = true; t.appendChild(op); });
+        t.addEventListener('change', function () { r.tag = t.value; changed(); });
+        var up = el('button', 'mini-mv', '↑'); up.type = 'button'; up.disabled = i === 0; up.setAttribute('aria-label', 'Move row ' + (i + 1) + ' up');
+        up.addEventListener('click', function () { var m = n.rows.splice(i, 1)[0]; n.rows.splice(i - 1, 0, m); drawRows(); changed(); });
+        var dn = el('button', 'mini-mv', '↓'); dn.type = 'button'; dn.disabled = i === n.rows.length - 1; dn.setAttribute('aria-label', 'Move row ' + (i + 1) + ' down');
+        dn.addEventListener('click', function () { var m = n.rows.splice(i, 1)[0]; n.rows.splice(i + 1, 0, m); drawRows(); changed(); });
+        var x = el('button', 'mini-x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'Remove row ' + (i + 1));
+        x.addEventListener('click', function () { n.rows.splice(i, 1); drawRows(); changed(); });
+        line.appendChild(a); line.appendChild(c); line.appendChild(t); line.appendChild(up); line.appendChild(dn); line.appendChild(x);
+        list.appendChild(line);
+      });
+      rowsBox.appendChild(list);
+      var add = el('button', 'addbtn', '+ Add row'); add.type = 'button';
+      add.addEventListener('click', function () { n.rows = n.rows || []; n.rows.push(row('New source', '', '')); drawRows(); changed(); });
+      rowsBox.appendChild(add);
+    }
+    drawRows();
+    panel.appendChild(rowsBox);
+    panel.appendChild(field('How it works (shown on the box)', n.does, function (v) { n.does = v; changed(); }, true));
+    panel.appendChild(field('More detail (shown when clicked)', n.body, function (v) { n.body = v; changed(); }, true));
+    var del = el('button', 'danger-btn', 'Delete this box'); del.type = 'button';
+    var armed = false;
+    del.addEventListener('click', function () {
+      if (!armed) { armed = true; del.textContent = 'Click again to delete'; setTimeout(function () { armed = false; del.textContent = 'Delete this box'; }, 3000); return; }
+      model.nodes = model.nodes.filter(function (x) { return x.id !== id; });
+      model.edges = model.edges.filter(function (e) { return e[0] !== id && e[1] !== id; });
+      model.tour.forEach(function (st) { st.f = (st.f || []).filter(function (f) { return f !== id; }); });
+      selNode = null;
+      closePanel();
+      renderAll();
+      queueSave('canvas'); queueSave('tour');
+    });
+    panel.appendChild(del);
+    panel.hidden = false;
+    keepVisible(box(id));
+  }
+
+  /* ---------- walkthrough ---------- */
+  var walkBtn = document.getElementById('walk');
+  function stepRect(st) {
+    if (!st.f || !st.f.length || st.f.indexOf('all') >= 0) return null;
+    var r = union(st.f.map(box));
+    return { x: r.x - 30, y: r.y - 30, w: r.w + 60, h: r.h + 60 };
+  }
+  function goStep(i) {
+    if (!model.tour.length) return;
+    tourIdx = Math.max(0, Math.min(model.tour.length - 1, i));
+    selNode = null; selEdge = null;
+    appEl.classList.add('touring');
+    walkBtn.hidden = true;
+    renderTourPanel();
+    renderEdges();
+    var st = model.tour[tourIdx];
+    var rc = stepRect(st);
+    if (!rc) fit(true);
+    else camera(function () { return stepRect(st); }, true, 1.15, false);
+  }
+  function exitTour() { tourIdx = null; appEl.classList.remove('touring'); walkBtn.hidden = false; panel.hidden = true; panelMode = null; renderEdges(); fit(true); }
+  function renderTourPanel() {
+    var st = model.tour[tourIdx];
+    clearPanel();
+    panelMode = 'tour';
+    var top = el('div', 'st-top');
+    top.appendChild(el('span', 'st-step', 'Step ' + (tourIdx + 1) + ' of ' + model.tour.length));
+    var ex = el('button', 'close', 'Exit'); ex.type = 'button'; ex.addEventListener('click', exitTour);
+    top.appendChild(ex);
+    panel.appendChild(top);
+    if (editMode && !presentMode) renderTourEditor(st); else renderTourView(st);
+    var nav = el('div', 'st-nav');
+    var dots = el('div', 'st-dots');
+    model.tour.forEach(function (s, i) {
+      var d = el('button', i === tourIdx ? 'on' : ''); d.type = 'button';
+      d.setAttribute('aria-label', 'Step ' + (i + 1) + ': ' + s.t);
+      d.addEventListener('click', function () { goStep(i); });
+      dots.appendChild(d);
+    });
+    var btns = el('div', 'st-btns');
+    var back = el('button', 'tool', 'Back'); back.type = 'button'; back.disabled = tourIdx === 0;
+    back.addEventListener('click', function () { goStep(tourIdx - 1); });
+    var next = el('button', 'tool primary', tourIdx === model.tour.length - 1 ? 'Finish' : 'Next'); next.type = 'button';
+    next.id = 'st-next';
+    next.addEventListener('click', function () { if (tourIdx === model.tour.length - 1) exitTour(); else goStep(tourIdx + 1); });
+    btns.appendChild(back); btns.appendChild(next);
+    nav.appendChild(dots); nav.appendChild(btns);
+    panel.appendChild(nav);
+    panel.hidden = false;
+  }
+  function evList(items) {
+    var list = el('div', 'ev');
+    items.forEach(function (e) {
+      var it = el('div', 'it');
+      if (e.s || e.d) { var s = el('div', 'src'); s.appendChild(document.createTextNode(e.s)); s.appendChild(el('span', null, e.d)); it.appendChild(s); }
+      if (e.f) it.appendChild(el('div', 'f', e.f));
+      if (e.u && /^https?:\/\//i.test(e.u)) { var a = el('a', null, 'Open the source ↗'); a.href = e.u; a.target = '_blank'; a.rel = 'noopener noreferrer'; it.appendChild(a); }
+      list.appendChild(it);
+    });
+    return list;
+  }
+  function renderTourView(st) {
+    panel.appendChild(el('h2', null, st.t));
+    if (st.x) panel.appendChild(el('p', null, st.x));
+    if (st.ev && st.ev.length) {
+      panel.appendChild(el('h4', null, st.eh || 'What happened'));
+      panel.appendChild(evList(st.ev));
+    }
+    if (st.how) { panel.appendChild(el('h4', null, 'How the agent processed it')); panel.appendChild(el('div', 'how', st.how)); }
+  }
+  function renderTourEditor(st) {
+    function saveTour() { queueSave('tour'); }
+    panel.appendChild(field('Step title', st.t, function (v) { st.t = v; saveTour(); }));
+    panel.appendChild(field('What to say', st.x, function (v) { st.x = v; saveTour(); }, true));
+    panel.appendChild(field('Heading above the evidence', st.eh || 'What happened', function (v) { st.eh = v; saveTour(); }));
+    var evBox = el('div', 'fld');
+    function drawEv() {
+      evBox.innerHTML = '';
+      (st.ev || []).forEach(function (e, i) {
+        var w = el('div', 'eved');
+        var two = el('div', 'twocol');
+        var s = el('input'); s.type = 'text'; s.value = e.s; s.placeholder = 'Source'; s.setAttribute('aria-label', 'Evidence ' + (i + 1) + ' source');
+        s.addEventListener('input', function () { e.s = s.value; saveTour(); });
+        var d = el('input'); d.type = 'text'; d.value = e.d; d.placeholder = 'Date'; d.setAttribute('aria-label', 'Evidence ' + (i + 1) + ' date');
+        d.addEventListener('input', function () { e.d = d.value; saveTour(); });
+        two.appendChild(s); two.appendChild(d);
+        var f = el('textarea'); f.value = e.f; f.placeholder = 'What it showed'; f.setAttribute('aria-label', 'Evidence ' + (i + 1) + ' finding');
+        f.addEventListener('input', function () { e.f = f.value; saveTour(); });
+        var u = el('input'); u.type = 'url'; u.value = e.u; u.placeholder = 'Link (https://...)'; u.setAttribute('aria-label', 'Evidence ' + (i + 1) + ' link');
+        u.addEventListener('input', function () { e.u = u.value.trim(); saveTour(); });
+        var x = el('button', 'addbtn', 'Remove this evidence'); x.type = 'button'; x.style.color = 'var(--danger)';
+        x.addEventListener('click', function () { st.ev.splice(i, 1); drawEv(); saveTour(); });
+        w.appendChild(two); w.appendChild(f); w.appendChild(u); w.appendChild(x);
+        evBox.appendChild(w);
+      });
+      var add = el('button', 'addbtn', '+ Add evidence'); add.type = 'button';
+      add.addEventListener('click', function () { st.ev = st.ev || []; st.ev.push(ev('', '', '', '')); drawEv(); saveTour(); });
+      evBox.appendChild(add);
+    }
+    drawEv();
+    panel.appendChild(evBox);
+    panel.appendChild(field('How the agent processed it', st.how, function (v) { st.how = v; saveTour(); }, true));
+    panel.appendChild(el('span', 'fldlabel', 'Boxes to light up'));
+    var fl = el('div', 'focuslist');
+    var opts = [['all', 'Whole picture']].concat(model.nodes.map(function (n) { return [n.id, n.nm]; }));
+    opts.forEach(function (o) {
+      var lab = el('label');
+      var cb = el('input'); cb.type = 'checkbox'; cb.checked = (st.f || []).indexOf(o[0]) >= 0;
+      cb.addEventListener('change', function () {
+        st.f = (st.f || []).filter(function (x) { return x !== o[0]; });
+        if (cb.checked) st.f.push(o[0]);
+        saveTour(); renderEdges();
+      });
+      lab.appendChild(cb); lab.appendChild(document.createTextNode(o[1]));
+      fl.appendChild(lab);
+    });
+    panel.appendChild(fl);
+    var two2 = el('div', 'twocol');
+    var addS = el('button', 'addbtn', '+ Add a step after this'); addS.type = 'button';
+    addS.addEventListener('click', function () { model.tour.splice(tourIdx + 1, 0, { f: ['all'], t: 'New step', x: '', how: '', ev: [] }); saveTour(); goStep(tourIdx + 1); });
+    var delS = el('button', 'addbtn', 'Delete this step'); delS.type = 'button'; delS.style.color = 'var(--danger)';
+    var armed = false;
+    delS.addEventListener('click', function () {
+      if (model.tour.length <= 1) return;
+      if (!armed) { armed = true; delS.textContent = 'Click again to delete'; setTimeout(function () { armed = false; delS.textContent = 'Delete this step'; }, 3000); return; }
+      model.tour.splice(tourIdx, 1); saveTour(); goStep(Math.min(tourIdx, model.tour.length - 1));
+    });
+    two2.appendChild(addS); two2.appendChild(delS);
+    panel.appendChild(two2);
+  }
+  walkBtn.addEventListener('click', function () { goStep(0); });
+
+  /* ---------- canvas interaction ---------- */
+  var drag = null;
+  function worldPoint(ev2) { var r = canvas.getBoundingClientRect(); return [(ev2.clientX - r.left - panX) / zoom, (ev2.clientY - r.top - panY) / zoom]; }
+  canvas.addEventListener('pointerdown', function (ev2) {
+    if (ev2.button !== undefined && ev2.button !== 0) return;
+    if (ev2.target.closest('.x-btn')) return;
+    world.classList.remove('anim');
+    var editing = editMode && !presentMode;
+    var port = editing ? ev2.target.closest('.port') : null;
+    var nodeEl = ev2.target.closest('.node');
+    var hit = editing ? ev2.target.closest('path.hit') : null;
+    if (port && nodeEl) {
+      ev2.preventDefault();
+      port.classList.add('live');
+      var tmp = document.createElementNS(NS, 'path');
+      tmp.setAttribute('class', 'temp');
+      edgeLayer.appendChild(tmp);
+      drag = { kind: 'link', from: nodeEl.dataset.id, tmp: tmp, port: port };
+      canvas.setPointerCapture(ev2.pointerId);
+      return;
+    }
+    if (nodeEl && editing) {
+      var id = nodeEl.dataset.id, n = nodeById(id), wp = worldPoint(ev2);
+      drag = { kind: 'node', id: id, dx: wp[0] - n.x, dy: wp[1] - n.y, moved: false, sx: ev2.clientX, sy: ev2.clientY };
+      canvas.setPointerCapture(ev2.pointerId);
+      return;
+    }
+    if (hit) { selEdge = Number(hit.dataset.i); selNode = null; renderEdges(); return; }
+    drag = { kind: 'pan', sx: ev2.clientX, sy: ev2.clientY, px: panX, py: panY, moved: false, node: nodeEl ? nodeEl.dataset.id : null };
+    canvas.classList.add('panning');
+    canvas.setPointerCapture(ev2.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (ev2) {
+    if (!drag) return;
+    if (drag.kind === 'pan') {
+      panX = drag.px + (ev2.clientX - drag.sx);
+      panY = drag.py + (ev2.clientY - drag.sy);
+      if (Math.abs(ev2.clientX - drag.sx) + Math.abs(ev2.clientY - drag.sy) > 3) { drag.moved = true; userMoved = true; }
+      applyView();
+    } else if (drag.kind === 'node') {
+      if (!drag.moved && Math.abs(ev2.clientX - drag.sx) + Math.abs(ev2.clientY - drag.sy) < 4) return;
+      drag.moved = true;
+      var wp = worldPoint(ev2), n = nodeById(drag.id);
+      n.x = Math.round((wp[0] - drag.dx) / 10) * 10;
+      n.y = Math.round((wp[1] - drag.dy) / 10) * 10;
+      els[drag.id].style.left = n.x + 'px';
+      els[drag.id].style.top = n.y + 'px';
+      renderEdges();
+    } else if (drag.kind === 'link') {
+      var w = worldPoint(ev2), a = box(drag.from), sp = [a.x + a.w, a.y + Math.min(a.h / 2, 60)];
+      drag.tmp.setAttribute('d', cubic(sp, [sp[0] + 60, sp[1]], [w[0] - 60, w[1]], w).d);
+    }
+  });
+  function endDrag(ev2) {
+    if (!drag) return;
+    var d = drag;
+    drag = null;
+    canvas.classList.remove('panning');
+    if (d.kind === 'node') {
+      if (d.moved) queueSave('canvas');
+      else {
+        selNode = d.id; selEdge = null;
+        renderEdges();
+        if (editMode && !presentMode) showEditor(d.id); else showDetails(d.id);
+      }
+    } else if (d.kind === 'pan') {
+      if (!d.moved && d.node) {
+        selNode = d.node; selEdge = null;
+        renderEdges();
+        showDetails(d.node);
+      } else if (!d.moved) {
+        selEdge = null;
+        if (panelMode === 'detail' || panelMode === 'edit') { if (tourIdx !== null) { selNode = null; goStep(tourIdx); } else closePanel(); }
+        else { selNode = null; renderEdges(); }
+      }
+    } else if (d.kind === 'link') {
+      d.port.classList.remove('live');
+      d.tmp.remove();
+      var under = document.elementFromPoint(ev2.clientX, ev2.clientY);
+      var target = under && under.closest ? under.closest('.node') : null;
+      if (target && target.dataset.id !== d.from) {
+        var to = target.dataset.id;
+        var exists = model.edges.some(function (e) { return e[0] === d.from && e[1] === to; });
+        if (!exists) { model.edges.push([d.from, to]); queueSave('canvas'); }
+      }
+      renderEdges();
+    }
+  }
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', function () {
+    if (drag && drag.tmp) drag.tmp.remove();
+    if (drag && drag.port) drag.port.classList.remove('live');
+    drag = null; canvas.classList.remove('panning');
+  });
+  canvas.addEventListener('wheel', function (ev2) {
+    ev2.preventDefault();
+    var r = canvas.getBoundingClientRect();
+    if (ev2.ctrlKey || ev2.metaKey) zoomAt(Math.exp(-ev2.deltaY * 0.01), ev2.clientX - r.left, ev2.clientY - r.top);
+    else { world.classList.remove('anim'); panX -= ev2.deltaX; panY -= ev2.deltaY; userMoved = true; applyView(); }
+  }, { passive: false });
+  nodeLayer.addEventListener('keydown', function (ev2) {
+    var e = ev2.target.closest('.node');
+    if (!e || (ev2.key !== 'Enter' && ev2.key !== ' ')) return;
+    ev2.preventDefault();
+    selNode = e.dataset.id; selEdge = null; renderEdges();
+    if (editMode && !presentMode) showEditor(selNode); else showDetails(selNode);
+  });
+  function typing() { var a = document.activeElement; return !!a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT' || a.isContentEditable); }
+  document.addEventListener('keydown', function (ev2) {
+    if (typing() || tab !== 'stack') return;
+    if ((ev2.key === 'Delete' || ev2.key === 'Backspace') && selEdge !== null && editMode) { ev2.preventDefault(); removeSelectedEdge(); return; }
+    if (tourIdx !== null && (ev2.key === 'ArrowRight' || ev2.key === 'PageDown')) { ev2.preventDefault(); if (tourIdx === model.tour.length - 1) exitTour(); else goStep(tourIdx + 1); return; }
+    if (tourIdx !== null && (ev2.key === 'ArrowLeft' || ev2.key === 'PageUp')) { ev2.preventDefault(); if (tourIdx > 0) goStep(tourIdx - 1); return; }
+    if (ev2.key === 'Escape') { if (tourIdx !== null) exitTour(); else closePanel(); }
+  });
+  function removeSelectedEdge() {
+    if (selEdge === null) return;
+    model.edges.splice(selEdge, 1);
+    selEdge = null;
+    renderEdges();
+    queueSave('canvas');
+  }
+
+  /* ---------- tools ---------- */
+  function centre() { var r = canvas.getBoundingClientRect(); return [r.width / 2, r.height / 2]; }
+  document.getElementById('zoom-in').addEventListener('click', function () { var c = centre(); zoomAt(1.2, c[0], c[1]); });
+  document.getElementById('zoom-out').addEventListener('click', function () { var c = centre(); zoomAt(1 / 1.2, c[0], c[1]); });
+  document.getElementById('fit').addEventListener('click', function () { fit(true); });
+  var presentBtn = document.getElementById('present');
+  presentBtn.addEventListener('click', function () {
+    presentMode = !presentMode;
+    presentBtn.setAttribute('aria-pressed', String(presentMode));
+    appEl.classList.toggle('present', presentMode);
+    applyEditMode();
+    if (tab === 'stack') { if (tourIdx !== null) goStep(tourIdx); else if (panel.hidden) fit(true); }
+  });
+  document.getElementById('add-box').addEventListener('click', function () {
+    var c = centre();
+    var id = 'n' + Date.now().toString(36);
+    var n = { id: id, type: 'agent', icon: 'agent', x: Math.round(((c[0] - panX) / zoom - 190) / 10) * 10, y: Math.round(((c[1] - panY) / zoom - 60) / 10) * 10, w: 380, eb: 'New', nm: 'New box', sb: '', rows: [], does: '', body: '' };
+    model.nodes.push(n);
+    renderAll();
+    selNode = id; renderEdges();
+    showEditor(id);
+    queueSave('canvas');
+  });
+  var resetBtn = document.getElementById('reset');
+  var resetArmed = null;
+  resetBtn.addEventListener('click', function () {
+    if (!resetArmed) {
+      resetBtn.textContent = 'Click again: this undoes all edits';
+      resetArmed = setTimeout(function () { resetBtn.textContent = 'Reset everything'; resetArmed = null; }, 3500);
+      return;
+    }
+    clearTimeout(resetArmed); resetArmed = null;
+    resetBtn.textContent = 'Reset everything';
+    model = { nodes: clone(DEFAULT_NODES), edges: clone(DEFAULT_EDGES), tour: clone(DEFAULT_TOUR), docs: {} };
+    restoreDocDefaults();
+    queueSave();
+    save.defaults = true;
+    writeLocal(true);
+    tourIdx = null; selNode = null; selEdge = null; panel.hidden = true; panelMode = null;
+    appEl.classList.remove('touring'); walkBtn.hidden = false;
+    renderAll(); fit(true);
+  });
+
+  /* ---------- edit mode ---------- */
+  var editBtn = document.getElementById('edit-toggle');
+  function hintText() {
+    return editMode && !presentMode
+      ? 'Editing: click a box to change it · drag boxes to move them · drag a box\'s right-hand dot onto another to connect · click a line to remove it'
+      : 'Click a box for detail · drag to look around · pinch or Ctrl + scroll to zoom' + (editBtn.hidden ? '' : ' · press Edit to change words, boxes and lines');
+  }
+  function applyEditMode() {
+    var on = editMode && !presentMode;
+    appEl.classList.toggle('editing', on);
+    editBtn.textContent = editMode ? 'Done' : 'Edit';
+    if (typeof renderSave === 'function') renderSave();
+    editBtn.setAttribute('aria-pressed', String(editMode));
+    hintEl.textContent = hintText();
+    Array.prototype.forEach.call(document.querySelectorAll('[data-edit]'), function (e) {
+      if (on) e.setAttribute('contenteditable', 'true'); else e.removeAttribute('contenteditable');
+    });
+    if (panelMode === 'tour') renderTourPanel();
+    else if (panelMode === 'detail' && selNode && on) showEditor(selNode);
+    else if (panelMode === 'edit' && selNode && !on) showDetails(selNode);
+  }
+  editBtn.addEventListener('click', function () {
+    editMode = !editMode;
+    applyEditMode();
+    if (!editMode && save.dirty && save.mode === 'files') publishState();
+  });
+
+  /* ---------- document tabs: editable text ---------- */
+  var ALLOWED = { B: 1, STRONG: 1, I: 1, EM: 1, A: 1, BR: 1, SPAN: 1, SMALL: 1 };
+  var DROP = /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|TEMPLATE|SVG|MATH|IMG|VIDEO|AUDIO|LINK|META|FORM|INPUT|BUTTON|TEXTAREA|SELECT|NOSCRIPT)$/;
+  function sanitize(html) {
+    var t = document.createElement('template');
+    t.innerHTML = String(html || '');
+    (function walk(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (ch) {
+        if (ch.nodeType === 1) {
+          if (DROP.test(ch.tagName)) { ch.remove(); return; }
+          walk(ch);
+          if (!ALLOWED[ch.tagName]) {
+            if (ch.tagName === 'DIV' || ch.tagName === 'P') node.insertBefore(document.createElement('br'), ch);
+            while (ch.firstChild) node.insertBefore(ch.firstChild, ch);
+            ch.remove();
+            return;
+          }
+          Array.prototype.slice.call(ch.attributes).forEach(function (at) {
+            var keep = (ch.tagName === 'A' && at.name === 'href' && /^https?:\/\//i.test(at.value)) || (ch.tagName === 'SPAN' && at.name === 'class' && /^(chip|badge)( (free|low|paid|own))*( (chip|badge))*( (free|low|paid|own))*$/.test(at.value));
+            if (!keep) ch.removeAttribute(at.name);
+          });
+          if (ch.tagName === 'A') { ch.setAttribute('target', '_blank'); ch.setAttribute('rel', 'noopener noreferrer'); }
+        } else if (ch.nodeType !== 3) { ch.remove(); }
+      });
+    })(t.content);
+    var d = document.createElement('div');
+    d.appendChild(t.content.cloneNode(true));
+    return d.innerHTML;
+  }
+  var docDefaults = {};
+  function initDocs() {
+    ['proof', 'fit', 'connect'].forEach(function (name) {
+      var host = document.querySelector('[data-doc="' + name + '"]');
+      Array.prototype.forEach.call(host.querySelectorAll('[data-edit]'), function (e, i) {
+        var key = name + ':' + i;
+        e.dataset.key = key;
+        docDefaults[key] = e.innerHTML;
+        Array.prototype.forEach.call(e.querySelectorAll('a[href]'), function (a) { a.target = '_blank'; a.rel = 'noopener noreferrer'; });
+      });
+    });
+  }
+  function applyDocEdits() {
+    Object.keys(docDefaults).forEach(function (key) {
+      var e = document.querySelector('[data-key="' + key + '"]');
+      if (!e) return;
+      var v = model.docs[key];
+      e.innerHTML = (typeof v === 'string') ? sanitize(v) : docDefaults[key];
+    });
+  }
+  function restoreDocDefaults() { model.docs = {}; applyDocEdits(); }
+  document.getElementById('stage').addEventListener('input', function (ev2) {
+    var e = ev2.target.closest && ev2.target.closest('[data-key]');
+    if (!e || !editMode) return;
+    model.docs[e.dataset.key] = sanitize(e.innerHTML).slice(0, 6000);
+    queueSave('docs');
+  });
+  document.getElementById('stage').addEventListener('click', function (ev2) {
+    var a = ev2.target.closest && ev2.target.closest('[data-key] a');
+    if (a && editMode) ev2.preventDefault();
+  });
+  document.getElementById('stage').addEventListener('paste', function (ev2) {
+    var e = ev2.target.closest && ev2.target.closest('[data-key]');
+    if (!e || !editMode) return;
+    ev2.preventDefault();
+    var text = (ev2.clipboardData || window.clipboardData).getData('text/plain') || '';
+    if (!document.execCommand || !document.execCommand('insertText', false, text)) {
+      var sel = window.getSelection();
+      if (sel && sel.rangeCount) { var r = sel.getRangeAt(0); r.deleteContents(); r.insertNode(document.createTextNode(text)); r.collapse(false); }
+      e.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  });
+  document.getElementById('stage').addEventListener('focusout', function (ev2) {
+    var e = ev2.target.closest && ev2.target.closest('[data-key]');
+    if (!e) return;
+    var v = model.docs[e.dataset.key];
+    if (typeof v === 'string') e.innerHTML = sanitize(v);
+  });
+
+  /* ---------- tabs ---------- */
+  var TABINFO = {
+    stack: ['the automated flow', "Four automations welcome, collect, chase and set up. The team keeps the site visit and Benito approves the launch. Walk through Smith Roofing for an example."],
+    proof: ['the Smith Roofing example', "A made-up client taken from signature to live in two weeks: every step, who does it, what the client sees and what Benito sees."],
+    fit: ['how it fits Adrageous', "What it takes off Benito, who does what, what stays the same and how success is measured."],
+    connect: ['tools and set-up', "What it runs on, the order to switch it on, six things to settle and questions for Benito."]
+  };
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  function showTab(name) {
+    tab = name;
+    tabs.forEach(function (t) { t.setAttribute('aria-selected', String(t.dataset.tab === name)); });
+    document.getElementById('view-title').textContent = TABINFO[name][0];
+    document.getElementById('view-lede').textContent = TABINFO[name][1];
+    ['stack', 'proof', 'fit', 'connect'].forEach(function (n) { document.getElementById('pane-' + n).hidden = n !== name; });
+    if (name !== 'stack') { panel.hidden = true; panelMode = null; tourIdx = null; appEl.classList.remove('touring'); walkBtn.hidden = false; selNode = null; selEdge = null; }
+    else { renderAll(); fit(false); }
+  }
+  tabs.forEach(function (t) { t.addEventListener('click', function () { showTab(t.dataset.tab); }); });
+
+  /* ---------- saving ----------
+     Saved content lives in data/state.json next to this page. Changes not yet saved there
+     are kept on this device. */
+  var LOCAL_KEY = 'adrageous-onboarding-v1';
+  var EDITOR_KEY = 'adrageous-onboarding-editor';
+  var STATE_PATH = 'data/state.json';
+  var save = { mode: 'starting', art: null, dirty: false, timer: null, busy: false, again: false, tries: 0, defaults: true };
+  var saveBtn = document.getElementById('save-now');
+  function cleanEdges(list) { return list.map(function (e) { return [e[0], e[1]]; }); }
+  function snapshot() {
+    if (save.defaults) return { v: 1 };
+    return { v: 1, savedAt: new Date().toISOString(), nodes: model.nodes, edges: cleanEdges(model.edges), tour: model.tour, docs: model.docs };
+  }
+  function writeLocal(pending) {
+    try {
+      if (pending) window.localStorage.setItem(LOCAL_KEY, JSON.stringify({ pending: true, state: snapshot() }));
+      else window.localStorage.removeItem(LOCAL_KEY);
+    } catch (e) { /* storage unavailable */ }
+  }
+  function readLocal() {
+    try {
+      var raw = window.localStorage.getItem(LOCAL_KEY);
+      if (!raw) return null;
+      var d = JSON.parse(raw);
+      return d && d.pending && d.state ? d.state : null;
+    } catch (e) { return null; }
+  }
+  function validNodes(list) {
+    if (!Array.isArray(list)) return null;
+    var out = [];
+    list.forEach(function (n) {
+      if (!n || typeof n.id !== 'string' || !isFinite(n.x) || !isFinite(n.y)) return;
+      out.push({
+        id: n.id, type: TYPE_LABEL[n.type] ? n.type : 'agent', icon: typeof n.icon === 'string' && IC[n.icon] ? n.icon : (TYPE_LABEL[n.type] ? n.type : 'agent'),
+        x: Number(n.x), y: Number(n.y), w: isFinite(n.w) ? Math.max(220, Math.min(560, Math.round(Number(n.w)))) : 380,
+        eb: String(n.eb || '').slice(0, 120), nm: String(n.nm || '').slice(0, 200), sb: String(n.sb || '').slice(0, 300),
+        rows: Array.isArray(n.rows) ? n.rows.slice(0, 20).map(function (r) { return { t: String((r && r.t) || '').slice(0, 160), c: String((r && r.c) || '').slice(0, 80), tag: TAG_LABEL[r && r.tag] ? r.tag : '' }; }) : [],
+        does: String(n.does || '').slice(0, 600), body: String(n.body || '').slice(0, 3000)
+      });
+    });
+    return out.length ? out : null;
+  }
+  function validTour(list) {
+    if (!Array.isArray(list) || !list.length) return null;
+    return list.slice(0, 40).map(function (s) {
+      return {
+        f: Array.isArray(s && s.f) ? s.f.filter(function (x) { return typeof x === 'string'; }) : ['all'],
+        t: String((s && s.t) || '').slice(0, 200), x: String((s && s.x) || '').slice(0, 2000), how: String((s && s.how) || '').slice(0, 2000), eh: String((s && s.eh) || '').slice(0, 120),
+        ev: Array.isArray(s && s.ev) ? s.ev.slice(0, 12).map(function (e) { return { s: String((e && e.s) || '').slice(0, 160), d: String((e && e.d) || '').slice(0, 60), f: String((e && e.f) || '').slice(0, 800), u: String((e && e.u) || '').slice(0, 500) }; }) : []
+      };
+    });
+  }
+  function applyCanvas(data) {
+    var nodes = validNodes(data && data.nodes);
+    if (!nodes) return;
+    var ids = {}; nodes.forEach(function (n) { ids[n.id] = 1; });
+    model.nodes = nodes;
+    model.edges = Array.isArray(data.edges) ? data.edges.filter(function (e) { return Array.isArray(e) && ids[e[0]] && ids[e[1]]; }).map(function (e) { return [e[0], e[1]]; }) : clone(DEFAULT_EDGES);
+  }
+  function applyTour(data) { var t = validTour(data && data.steps); if (t) model.tour = t; }
+  function applyDocs(data) { if (data && data.edits && typeof data.edits === 'object') { model.docs = {}; Object.keys(data.edits).forEach(function (k) { if (typeof data.edits[k] === 'string') model.docs[k] = data.edits[k]; }); } }
+  function applyState(d) {
+    if (!d || typeof d !== 'object') return;
+    if (!d.nodes && !d.tour && !d.docs) { model = { nodes: clone(DEFAULT_NODES), edges: clone(DEFAULT_EDGES), tour: clone(DEFAULT_TOUR), docs: {} }; save.defaults = true; return; }
+    applyCanvas(d);
+    applyTour({ steps: d.tour });
+    applyDocs({ edits: d.docs });
+    save.defaults = false;
+  }
+  function renderSave() {
+    var unsaved = save.dirty && save.mode === 'files';
+    saveBtn.hidden = !unsaved || !editMode;
+    appEl.classList.toggle('unsaved', save.dirty);
+  }
+  function queueSave() {
+    save.defaults = false;
+    save.dirty = true;
+    writeLocal(true);
+    if (save.mode === 'files') {
+      setStatus('Unsaved changes');
+      clearTimeout(save.timer);
+      save.timer = setTimeout(publishState, 4000);
+    } else if (save.mode === 'readonly') setStatus('View only: changes stay on this device');
+    else if (save.mode === 'off') setStatus('Saving is off here: changes stay on this device');
+    else setStatus('Saved on this device');
+    renderSave();
+  }
+  function publishState() {
+    clearTimeout(save.timer);
+    if (save.mode !== 'files' || !save.dirty) return;
+    if (save.busy) { save.again = true; return; }
+    save.busy = true; save.again = false; save.dirty = false;
+    setStatus('Saving');
+    renderSave();
+    var files = {};
+    files[STATE_PATH] = { content: JSON.stringify(snapshot()), contentType: 'application/json' };
+    save.art.publish(files).then(function () {
+      save.tries = 0;
+      if (!save.dirty) { writeLocal(false); setStatus('Saved for everyone'); }
+      done();
+    }, function (e) {
+      save.dirty = true;
+      var code = e && e.code;
+      if (code === 'conflict') setStatus('A newer version is loading; your changes are kept on this device');
+      else if ((code === 'upstream_error' || code === 'rate_limited') && save.tries < 1) {
+        save.tries += 1;
+        setStatus('Retrying');
+        save.timer = setTimeout(publishState, code === 'rate_limited' ? 15000 : 1500 + Math.random() * 1500);
+      } else if (code === 'not_writer' || code === 'not_granted' || code === 'consent_required' || code === 'not_declared') {
+        save.mode = 'readonly'; setStatus('View only: changes stay on this device');
+      } else { save.mode = 'off'; setStatus('Saving is off here: changes stay on this device'); }
+      done();
+    });
+    function done() { save.busy = false; renderSave(); if (save.again && save.mode === 'files') publishState(); }
+  }
+  saveBtn.addEventListener('click', publishState);
+  
+  document.getElementById('download-changes').addEventListener('click', function () {
+    var blob = new Blob([JSON.stringify(snapshot(), null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'onboarding-flow-changes.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+  });
+  var printRoot = document.getElementById('print-root');
+  function buildPrint() {
+    printRoot.innerHTML = '';
+    var wrap = el('div', 'doc');
+    var pic = el('section', 'card pdiagram');
+    pic.appendChild(el('p', 'eyebrow', 'The onboarding flow'));
+    var stageEl = el('div', 'pd-stage far');
+    var W = 700, H = 760;
+    var rc = allRect();
+    var k = Math.min(W / rc.w, H / rc.h);
+    var copy = world.cloneNode(true);
+    copy.removeAttribute('id');
+    copy.classList.remove('anim');
+    Array.prototype.forEach.call(copy.querySelectorAll('[id]'), function (x) { if (x.tagName.toLowerCase() === 'marker') x.id = x.id + '-print'; else x.removeAttribute('id'); });
+    Array.prototype.forEach.call(copy.querySelectorAll('.x-btn, .port'), function (x) { x.remove(); });
+    Array.prototype.forEach.call(copy.querySelectorAll('.node'), function (x) { x.classList.remove('dim', 'lit', 'sel'); x.removeAttribute('tabindex'); });
+    Array.prototype.forEach.call(copy.querySelectorAll('path.e'), function (x) { x.setAttribute('class', 'e'); x.setAttribute('marker-end', 'url(#arr-print)'); });
+    var svgCopy = copy.querySelector('svg');
+    if (svgCopy) svgCopy.classList.remove('focus');
+    copy.style.transform = 'none';
+    copy.style.left = (-rc.x) + 'px';
+    copy.style.top = (-rc.y) + 'px';
+    var inner = el('div', 'pd-inner');
+    inner.style.zoom = String(k);
+    inner.appendChild(copy);
+    stageEl.style.width = Math.ceil(rc.w * k) + 'px';
+    stageEl.style.height = Math.ceil(rc.h * k) + 'px';
+    stageEl.appendChild(inner);
+    pic.appendChild(stageEl);
+    wrap.appendChild(pic);
+    var lead = el('section', 'card lead');
+    lead.appendChild(el('p', 'eyebrow', 'Each agent in detail'));
+    lead.appendChild(el('h2', null, 'How a new client is onboarded, step by step'));
+    lead.appendChild(el('p', null, TABINFO.stack[1].replace(/ Walk through Smith Roofing for an example\.?$/, '')));
+    wrap.appendChild(lead);
+    var grid = el('div', 'pgrid');
+    var order = { agent: 0, data: 1, people: 2, action: 3, goal: 4 };
+    model.nodes.slice().sort(function (a, b) { return (order[a.type] - order[b.type]) || (a.x - b.x) || (a.y - b.y); }).forEach(function (n) {
+      var c = el('section', 'card pnode ty-' + n.type);
+      if (n.eb) c.appendChild(el('p', 'eyebrow', n.eb));
+      c.appendChild(el('h3', null, n.nm));
+      if (n.sb) c.appendChild(el('p', 'note', n.sb));
+      if (n.rows && n.rows.length) {
+        var rs = el('div', 'srcs');
+        n.rows.forEach(function (r) {
+          var rw = el('div', 'lrow');
+          rw.appendChild(el('span', 'ln', r.t));
+          if (r.c) rw.appendChild(el('span', 'lc', r.c));
+          if (r.tag && TAG_LABEL[r.tag]) rw.appendChild(el('span', 'badge ' + r.tag, TAG_LABEL[r.tag]));
+          rs.appendChild(rw);
+        });
+        c.appendChild(rs);
+      }
+      if (n.does) { var h = el('p', 'phow'); h.appendChild(el('b', null, 'How: ')); h.appendChild(document.createTextNode(n.does)); c.appendChild(h); }
+      if (n.body) c.appendChild(el('p', 'note', n.body));
+      grid.appendChild(c);
+    });
+    wrap.appendChild(grid);
+    printRoot.appendChild(wrap);
+    ['proof', 'fit', 'connect'].forEach(function (name) {
+      var d = document.querySelector('[data-doc="' + name + '"]').cloneNode(true);
+      d.removeAttribute('data-doc');
+      d.classList.add('docpart');
+      Array.prototype.forEach.call(d.querySelectorAll('[contenteditable]'), function (x) { x.removeAttribute('contenteditable'); });
+      Array.prototype.forEach.call(d.querySelectorAll('.editbar'), function (x) { x.remove(); });
+      printRoot.appendChild(d);
+    });
+  }
+  document.getElementById('pdf').addEventListener('click', function () {
+    buildPrint();
+    window.print();
+  });
+  window.addEventListener('beforeprint', function () { if (!printRoot.firstChild) buildPrint(); });
+  
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden' && save.dirty && save.mode === 'files') publishState(); });
+  function showEdit(on) { editBtn.hidden = !on; if (!on && editMode) editMode = false; applyEditMode(); }
+  function connect() {
+    
+    var allow = false;
+    try {
+      if (/(^|&)edit(=|&|$)/.test(location.search.slice(1)) || /(^|&)edit(=|&|$)/.test(location.hash.slice(1))) { allow = true; window.localStorage.setItem(EDITOR_KEY, '1'); }
+      else allow = window.localStorage.getItem(EDITOR_KEY) === '1';
+    } catch (e) { allow = /edit/.test(location.search + location.hash); }
+    save.mode = 'local';
+    showEdit(allow);
+    setStatus(save.dirty ? 'Changes kept on this device' : 'Saved on this device');
+    renderSave();
+    
+    
+  }
+  function loadSaved(then) {
+    var finished = false;
+    function finish(data, late) {
+      if (finished && !late) return;
+      if (late) { if (save.dirty || !data) return; applyState(data); refresh(); return; }
+      finished = true;
+      if (data) applyState(data);
+      var local = readLocal();
+      if (local) { applyState(local); save.dirty = true; }
+      then();
+    }
+    var timer = setTimeout(function () { finish(null); }, 2500);
+    try {
+      fetch(STATE_PATH, { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) { var late = finished; clearTimeout(timer); finish(d, late); }, function () { clearTimeout(timer); finish(null); });
+    } catch (e) { clearTimeout(timer); finish(null); }
+  }
+  function refresh() {
+    applyDocEdits(); applyEditMode();
+    if (!drag && tourIdx === null && panel.hidden && tab === 'stack') { renderAll(); fit(false); }
+  }
+
+  window.addEventListener('resize', function () { if (!userMoved && tourIdx === null && tab === 'stack') fit(false); });
+
+  initDocs();
+  loadSaved(function () {
+    applyDocEdits();
+    applyEditMode();
+    showTab('stack');
+    connect();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () {
+      if (tab === 'stack') { renderEdges(); if (!userMoved && tourIdx === null) fit(false); }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
